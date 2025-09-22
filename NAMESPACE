@@ -2,3 +2,4 @@
 
 S3method(print,modelo_cheia)
 export(fit_modelo_cheia)
+import(data.table)
