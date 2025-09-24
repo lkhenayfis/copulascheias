@@ -20,15 +20,18 @@ parse_unitary_expr <- function(x, modelo) {
 }
 
 get_event_expr <- function(x) {
+    x <- gsub("(\\(|\\))", "", x)
     x <- sub("^[[:digit:]]* ?<= ?", "", x)
-    x <- sub("^[[:digit:]]* ?>= ?", "", x)
+    x <- sub(" ?>= ?[[:digit:]]*$", "", x)
     x <- sub(" ?<= ?[[:digit:]]*$", "", x)
     return(x)
 }
 
 get_lower <- function(x, modelo) {
+    # procura bound da forma b <= x (presente em expressoes do tipo a <= x <= b)
     val <- regmatches(x, regexpr("([[:digit:]]+ )(?=(<=))", x, perl = TRUE))
     if (length(val) == 0) {
+        # caso nao ache, procura x >= b
         val <- regmatches(x, regexpr("(?<=(>=))( ?[[:digit:]]+)", x, perl = TRUE))
     }
     val <- as.numeric(val)
@@ -38,7 +41,7 @@ get_lower <- function(x, modelo) {
 get_upper <- function(x, modelo) {
     val <- regmatches(x, regexpr("(?<=(<=))( ?[[:digit:]]+)", x, perl = TRUE))
     val <- as.numeric(val)
-    if (identical(val, numeric(0))) 1 else val
+    if (identical(val, numeric(0))) Inf else val
 }
 
 # CONSTRUTORES INTERNOS ----------------------------------------------------------------------------
