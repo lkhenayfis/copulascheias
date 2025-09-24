@@ -6,10 +6,11 @@
 
 parse_unitary_expr <- function(x, modelo) {
 
+    expr <- get_event_expr(x)
+    validate_expr(expr, modelo)
+
     lower <- get_lower(x, modelo)
     upper <- get_upper(x, modelo)
-
-    expr <- get_event_expr(x)
 
     is_multivar <- grepl("(\\+|\\-)", expr)
     if (is_multivar) {
@@ -61,6 +62,14 @@ new_unitary_event_u <- function(lower, upper, expr, modelo) {
 
 new_unitary_event_m <- function(lower, upper, expr, modelo) {
     stop("Eventos unitarios multivariados ainda nao sao suportados")
+}
+
+# VALIDACAO ----------------------------------------------------------------------------------------
+
+validate_expr <- function(expr, modelo) {
+    vars <- strsplit(expr, " ?\\+ ?")[[1]]
+    has_all_vars <- all(vars %in% modelo$vines$names)
+    if (!has_all_vars) stop("Algumas variaveis de inferencia nao existem no modelo")
 }
 
 # METODOS ------------------------------------------------------------------------------------------
