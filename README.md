@@ -34,9 +34,7 @@ O exemplo abaixo ilustra um uso de caso simples do pacote
 ``` r
 library(copulascheias)
 
-data <- data.table::fread(system.file("extdata/cheias.csv", package = "copulascheias"))
-
-modelo <- fit_modelo_cheia(data, "ernestina")
+modelo <- fit_modelo_cheia(minicheias[, 4:6])
 pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo)
-#> [1] 0.07119198
+#> [1] 0.07143803
 ```
