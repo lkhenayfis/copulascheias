@@ -5,6 +5,7 @@ output: github_document
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
+options(warn = -1)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -43,4 +44,9 @@ O exemplo abaixo ilustra um uso de caso simples do pacote
 
 ```{r example}
 library(copulascheias)
+
+data <- data.table::fread(system.file("extdata/cheias.csv", package = "copulascheias"))
+
+modelo <- fit_modelo_cheia(data, "ernestina")
+pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo)
 ```
