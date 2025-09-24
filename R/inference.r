@@ -12,7 +12,7 @@ parse_inference <- function(expr, modelo) {
     units <- split_eventos_unitarios(expr)
     units <- lapply(units, parse_unitary_expr, modelo)
 
-    is_square <- all(seps == "&") && all(inherits(units, "unitary_event_u"))
+    is_square <- all(seps == "&") && all(sapply(units, inherits, "unitary_event_u"))
     if (is_square) {
         new_simple_inference(units)
     } else {
