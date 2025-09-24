@@ -74,13 +74,21 @@ validate_expr <- function(expr, modelo) {
 
 # METODOS ------------------------------------------------------------------------------------------
 
+#' Auxiliar Para Conversao De Eventos Em Bounds
+#' 
+#' @param x evento unitario
+
 event2bounds <- function(x, ...) UseMethod("event2bounds")
+
+#' @rdname event2bounds
 
 event2bounds.unitary_event_u <- function(x, mode = c("x", "u"), ...) {
     mode <- match.arg(mode)
     mode <- paste0("bounds_", mode)
     attr(x, mode)
 }
+
+#' @rdname event2bounds
 
 event2bounds.unitary_event_m <- function(x) {
     stop("Eventos unitarios multivariados ainda nao sao suportados")
