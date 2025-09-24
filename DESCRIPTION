@@ -8,7 +8,10 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Depends: 
+    R (>= 4.0)
 Imports: 
     VineCopula (>= 2.6.1),
     cubature (>= 2.1.4),
     data.table (>= 1.17.8)
+LazyData: true
