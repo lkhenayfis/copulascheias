@@ -3,5 +3,6 @@
 
 ## usethis namespace: start
 #' @import data.table
+#' @import VineCopula
 ## usethis namespace: end
 NULL

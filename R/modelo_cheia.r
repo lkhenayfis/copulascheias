@@ -24,7 +24,7 @@ fit_modelo_cheia <- function(data, postos, anos = NULL, vine_params = default_vi
 
     data_u <- mapply(function(v, f) f(v), data, ecdfs)
 
-    cc <- as.call(c(list(quote(VineCopula::RVineStructureSelect), data = quote(data_u)), vine_params))
+    cc <- as.call(c(list(quote(RVineStructureSelect), data = quote(data_u)), vine_params))
     vines <- eval(cc)
 
     new_modelo_cheia(vines, ecdfs, postos, anos)
