@@ -7,10 +7,38 @@
 pcopula(expr, modelo)
 }
 \arguments{
-\item{expr}{string descrevendo o evento cuja probabilidade deve ser calculada}
+\item{expr}{string descrevendo o evento cuja probabilidade deve ser calculada. Veja Detalhes}
 
 \item{modelo}{modelo de copula como retornado por \code{\link[=fit_modelo_cheia]{fit_modelo_cheia()}}}
 }
+\value{
+escalar indicando a probabilidade do evento \code{expr}
+}
 \description{
 Calcula a probabilidade de um evento \code{expr} de acordo com a copula estimada \code{modelo}
+}
+\details{
+\code{expr} e o principal argumento desta funcao. Atraves dele sao informadas expressoes simbolicas
+que qualificam um evento cuja probabilidade sera calculada. Ha duas partes destas expressoes.
+
+Primeiro, devem ser descritos os eventos unitarios. Estes sao da forma \code{"var <= b"}, em que
+\code{"var"} e uma das variaveis representadas em \code{modelo} e \code{b} um valor de bound. Sao suportadas
+expressoes das formas \code{"var <= b"}, \code{"var >= b"} e \code{"a <= var <= b"}.
+
+Eventos unitarios podem ser combinados por intersecao, utilizando os simbolos \code{&} e \code{|}
+respectivamente. Por exemplo, uma expressao de dois eventos seria "(var1 <= b1) & (var2 >= b2)".
+Nao ha qualquer limite no numero de eventos.
+}
+\examples{
+
+# utilizando parte do dado interno do pacote
+data <- minicheias[, 1:3]
+mod <- fit_modelo_cheias(data)
+
+# evento simples, considerando apenas uma variavel
+pcopula("ernestina >= 500", modelo)
+
+# considerando agora duas
+pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo)
+
 }

@@ -2,9 +2,12 @@
 % Please edit documentation in R/pcopula.r
 \name{run_inference}
 \alias{run_inference}
+\alias{run_inference.simple_inference}
 \title{Executa Inferencia}
 \usage{
 run_inference(inference, modelo)
+
+\method{run_inference}{simple_inference}(inference, modelo, nsims = 2e+06, threads = 1)
 }
 \arguments{
 \item{inference}{objeto inferenca}
