@@ -2,8 +2,21 @@
 #' 
 #' Interpreta uma expressao de inferencia e retorna objeto indicando tipo de integracao necessario
 #' 
-#' @param expr uma string indicando a inferencia desejada no modelo. Veja Exemplos e Detalhes
+#' `expr` e o principal argumento desta funcao. Atraves dele sao informadas expressoes simbolicas
+#' que qualificam um evento cuja probabilidade sera calculada. Ha duas partes destas expressoes.
+#' 
+#' Primeiro, devem ser descritos os eventos unitarios. Estes sao da forma `"var <= b"`, em que
+#' `"var"` e uma das variaveis representadas em `modelo` e `b` um valor de bound. Sao suportadas
+#' expressoes das formas `"var <= b"`, `"var >= b"` e `"a <= var <= b"`.
+#' 
+#' Eventos unitarios podem ser combinados por intersecao, utilizando os simbolos `&` e `|`
+#' respectivamente. Por exemplo, uma expressao de dois eventos seria "(var1 <= b1) & (var2 >= b2)".
+#' Nao ha qualquer limite no numero de eventos.
+#' 
+#' @param expr uma string indicando a inferencia desejada no modelo. Veja Detalhes
 #' @param modelo o modelo no qual sera realizada a inferencia
+#' 
+#' @return objeto `simple_inference` ou `complex_inference`
 
 parse_inference <- function(expr, modelo) {
 
@@ -20,10 +33,22 @@ parse_inference <- function(expr, modelo) {
     }
 }
 
+#' Construtor Interno De `simple_inference`
+#' 
+#' Gera um objeto da classe `simple_inference`, uma lista de eventos unitarios interpretados
+#' 
+#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_event]
+#' 
+#' @return argumento `unitary_events` com classe adicionada `simple_inference`
+
 new_simple_inference <- function(unitary_events) {
     new <- structure(unitary_events, class = c("simple_inference", "list"))
     return(new)
 }
+
+#' Construtor Interno De `complex_inference`
+#' 
+#' Ainda nao implementado
 
 new_complex_inference <- function(unitary_events, separators) {
     stop("Inferencias complexas (conjuntos nao quadrados) ainda nao suportadas")
@@ -31,15 +56,43 @@ new_complex_inference <- function(unitary_events, separators) {
 
 # HELPERS ------------------------------------------------------------------------------------------
 
+#' Separadores De Trechos De Expressoes
+#' 
+#' Separam uma expressao de inferencia entre expressoes de eventos unitarios e operadores de combinacao
+#' 
+#' Ambas as funcoes recebem uma expressao do tipo `"(var1 <= b1) & (var2 >= b2) ..."`.
+#' `split_eventos_unitarios` retorna um vetor `c("var1", "var2", ...)` enquanto `split_separadores`
+#' retorna os operadores `c("&, ...")`. O numero de operadores e sempre o numero de eventos menos 1.
+#' 
+#' @param expr uma string de evento para inferencia. Veja [parse_inference()]
+#' 
+#' @return vetor de variaveis de evento unitario ou operadores de combinacao. Veja Detalhes
+
 split_eventos_unitarios <- function(expr) {
     trimws(strsplit(expr, "(&|\\|)")[[1]])
 }
+
+#' @rdname split_eventos_unitarios
 
 split_separadores <- function(expr) {
     regmatches(expr, gregexpr("(&|\\|)", expr))[[1]]
 }
 
 # METODOS ------------------------------------------------------------------------------------------
+
+#' Extrai Limites De Integracao De `simple_inference`
+#' 
+#' Gera lista de dois vetores: lower e upper bounds de integracao
+#' 
+#' Se `modelo` for passado, a funcao busca as variaveis contidas nele que nao constam em `inference`
+#' para completar os vetores de bounds. Nestas posicoes o lower bound e sempre 0 e o upper, 1.
+#' 
+#' E recomendado sempre passar este argumento, do contrario erros podem decorrer.
+#' 
+#' @param inference um objeto do tipo `simple_inference`
+#' @param modelo opcionalmente um modelo ajustado por [fit_modelo_cheia]. Veja Detalhes
+#' 
+#' @return lista de dois vetores: lower e upper bounds de integracao
 
 simple_inference2bounds <- function(inference, modelo = NULL) {
     lower <- sapply(inference, function(i) attr(i, "bounds_u")[1])

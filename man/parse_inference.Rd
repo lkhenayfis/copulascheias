@@ -7,10 +7,25 @@
 parse_inference(expr, modelo)
 }
 \arguments{
-\item{expr}{uma string indicando a inferencia desejada no modelo. Veja Exemplos e Detalhes}
+\item{expr}{uma string indicando a inferencia desejada no modelo. Veja Detalhes}
 
 \item{modelo}{o modelo no qual sera realizada a inferencia}
 }
+\value{
+objeto \code{simple_inference} ou \code{complex_inference}
+}
 \description{
 Interpreta uma expressao de inferencia e retorna objeto indicando tipo de integracao necessario
+}
+\details{
+\code{expr} e o principal argumento desta funcao. Atraves dele sao informadas expressoes simbolicas
+que qualificam um evento cuja probabilidade sera calculada. Ha duas partes destas expressoes.
+
+Primeiro, devem ser descritos os eventos unitarios. Estes sao da forma \code{"var <= b"}, em que
+\code{"var"} e uma das variaveis representadas em \code{modelo} e \code{b} um valor de bound. Sao suportadas
+expressoes das formas \code{"var <= b"}, \code{"var >= b"} e \code{"a <= var <= b"}.
+
+Eventos unitarios podem ser combinados por intersecao, utilizando os simbolos \code{&} e \code{|}
+respectivamente. Por exemplo, uma expressao de dois eventos seria "(var1 <= b1) & (var2 >= b2)".
+Nao ha qualquer limite no numero de eventos.
 }
