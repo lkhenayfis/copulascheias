@@ -2,5 +2,6 @@
 
 S3method(print,modelo_cheia)
 export(fit_modelo_cheia)
+export(pcopula)
 import(VineCopula)
 import(data.table)

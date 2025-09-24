@@ -4,6 +4,8 @@
 #' 
 #' @param expr string descrevendo o evento cuja probabilidade deve ser calculada
 #' @param modelo modelo de copula como retornado por [`fit_modelo_cheia()`]
+#' 
+#' @export
 
 pcopula <- function(expr, modelo) {
     inference <- parse_inference(expr, modelo)
