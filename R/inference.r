@@ -38,3 +38,26 @@ split_eventos_unitarios <- function(expr) {
 split_separadores <- function(expr) {
     regmatches(expr, gregexpr("(&|\\|)", expr))[[1]]
 }
+
+# METODOS ------------------------------------------------------------------------------------------
+
+simple_inference2bounds <- function(inference, modelo = NULL) {
+    lower <- sapply(inference, function(i) attr(i, "bounds_u")[1])
+    upper <- sapply(inference, function(i) attr(i, "bounds_u")[2])
+    names(lower) <- names(upper) <- unclass(inference)
+
+    if (!is.null(modelo)) {
+        model_vars <- modelo$vines$names
+        lower <- fillvec(lower, model_vars, 0)
+        upper <- fillvec(upper, model_vars, 1)
+    }
+
+    bounds <- list(lower, upper)
+    return(bounds)
+}
+
+fillvec <- function(vec, names, fill = 1) {
+    full <- structure(rep(fill, length(names)), names = names)
+    full[match(names(vec), names(full))] <- vec
+    return(full)
+}
