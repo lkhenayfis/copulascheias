@@ -6,21 +6,21 @@
 
 parse_unitary_expr <- function(x, modelo) {
 
-    expr <- get_event_expr(x)
-    validate_expr(expr, modelo)
+    vars <- get_event_vars(x)
+    validate_vars(vars, modelo)
 
     lower <- get_lower(x, modelo)
     upper <- get_upper(x, modelo)
 
-    is_multivar <- grepl("(\\+|\\-)", expr)
+    is_multivar <- grepl("(\\+|\\-)", vars)
     if (is_multivar) {
-        new_unitary_event_m(lower, upper, expr, modelo)
+        new_unitary_event_m(lower, upper, vars, modelo)
     } else {
-        new_unitary_event_u(lower, upper, expr, modelo)
+        new_unitary_event_u(lower, upper, vars, modelo)
     }
 }
 
-get_event_expr <- function(x) {
+get_event_vars <- function(x) {
     x <- gsub("(\\(|\\))", "", x)
     x <- sub("^[[:digit:]]+(\\.[[:digit:]]*)? ?<= ?", "", x)
     x <- sub(" ?>= ?[[:digit:]]+(\\.[[:digit:]]*)?$", "", x)
@@ -47,27 +47,27 @@ get_upper <- function(x, modelo) {
 
 # CONSTRUTORES INTERNOS ----------------------------------------------------------------------------
 
-new_unitary_event_u <- function(lower, upper, expr, modelo) {
+new_unitary_event_u <- function(lower, upper, var, modelo) {
 
-    ecdf <- attr(modelo, "ecdfs")[[expr]]
+    ecdf <- attr(modelo, "ecdfs")[[var]]
     lower_u <- ecdf(lower)
     upper_u <- ecdf(upper)
 
-    new <- structure(expr, class = "unitary_event_u")
+    new <- structure(var, class = "unitary_event_u")
     attr(new, "bounds_x") <- c(lower, upper)
     attr(new, "bounds_u") <- c(lower_u, upper_u)
 
     return(new)
 }
 
-new_unitary_event_m <- function(lower, upper, expr, modelo) {
+new_unitary_event_m <- function(lower, upper, var, modelo) {
     stop("Eventos unitarios multivariados ainda nao sao suportados")
 }
 
 # VALIDACAO ----------------------------------------------------------------------------------------
 
-validate_expr <- function(expr, modelo) {
-    vars <- strsplit(expr, " ?\\+ ?")[[1]]
+validate_vars <- function(vars, modelo) {
+    vars <- strsplit(vars, " ?\\+ ?")[[1]]
     has_all_vars <- all(vars %in% modelo$vines$names)
     if (!has_all_vars) stop("Algumas variaveis de inferencia nao existem no modelo")
 }

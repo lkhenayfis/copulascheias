@@ -1,34 +1,34 @@
-test_that("get_expr", {
+test_that("get_event_vars", {
     str <- "var <= 1"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "var >= 1"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "0 <= var"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "0 <= var <= 1"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "var <= 1.2"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "var >= 1.2"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "0.8 <= var"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 
     str <- "0.8 <= var <= 1.2"
-    evt_var <- get_event_expr(str)
+    evt_var <- get_event_vars(str)
     expect_equal(evt_var, "var")
 })
 
@@ -82,13 +82,13 @@ test_that("get_lower|upper", {
     expect_equal(upper, 20.546)
 })
 
-test_that("validate_expr", {
+test_that("validate_vars", {
     modelo <- fit_modelo_cheia(minicheias)
 
-    expect_no_error(validate_expr("barra_grande_pico", modelo))
-    expect_no_error(validate_expr("barra_grande_volume", modelo))
+    expect_no_error(validate_vars("barra_grande_pico", modelo))
+    expect_no_error(validate_vars("barra_grande_volume", modelo))
 
-    expect_error(validate_expr("barra_grande_erro", modelo))
+    expect_error(validate_vars("barra_grande_erro", modelo))
 })
 
 test_that("parse_unitary_expr", {
