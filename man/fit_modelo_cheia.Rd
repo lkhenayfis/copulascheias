@@ -4,27 +4,31 @@
 \alias{fit_modelo_cheia}
 \title{Ajuste De Modelo De Cheias}
 \usage{
-fit_modelo_cheia(
-  data,
-  postos,
-  anos = NULL,
-  vine_params = default_vine_params()
-)
+fit_modelo_cheia(data, vine_params = default_vine_params())
 }
 \arguments{
-\item{data}{\code{data.table} de dados de cheias}
-
-\item{postos}{vetor de postos a serem modelados}
-
-\item{anos}{vetor indicando quais anos devem ser considerados para o modelo; \code{NULL} usa todos os
-anos disponiveis em \code{data}}
+\item{data}{\code{data.table} de dados em que cada coluna representa uma variavel. Veja Detalhes}
 
 \item{vine_params}{lista de argumentos para estimacao da vine copula, pode ser composta de
 qualquer argumento da funcao \code{\link[VineCopula:RVineStructureSelect]{VineCopula::RVineStructureSelect()}}}
 }
 \value{
-objeto \code{modelo_cheias}
+objeto \code{modelo_cheias}, uma lista de apenas um elemento \code{"vines"} contendo o modelo de
+\code{VineCopula} estimado
 }
 \description{
 Estima uma vine copula considerando todos os aspectos de cheia em \code{data}
+}
+\details{
+O argumento \code{data} deve ser um \code{data.table}-like em que cada coluna corresponde a uma variavel
+da distribuicao multivariada a ser estimada. Os nomes das colunas sao de grande importancia neste
+pacote pois serao posteriormente utilizadas para interpretacao dos eventos de inferencia (veja
+\code{\link[=pcopula]{pcopula()}}).
+}
+\examples{
+
+# utilizando parte do dado interno do pacote
+data <- minicheias[, 1:3]
+mod <- fit_modelo_cheias(data)
+
 }
