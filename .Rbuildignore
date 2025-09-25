@@ -2,3 +2,4 @@
 ^README\.Rmd$
 ^data-raw$
 ^_informals$
+^\.github$

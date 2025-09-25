@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 # copulascheias
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/lkhenayfis/copulascheias/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lkhenayfis/copulascheias/actions/workflows/R-CMD-check.yaml)
+[![codecov](https://codecov.io/gh/lkhenayfis/copulascheias/graph/badge.svg?token=K69EGCEZ6W)](https://codecov.io/gh/lkhenayfis/copulascheias)
 <!-- badges: end -->
 
 O pacote `copulascheias` implementa funcionalidades para analises de cheias multivariadas. Contem
@@ -46,5 +48,5 @@ O exemplo abaixo ilustra um uso de caso simples do pacote
 library(copulascheias)
 
 modelo <- fit_modelo_cheia(minicheias[, 4:6])
-pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo)
+pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo, 1000)
 ```
