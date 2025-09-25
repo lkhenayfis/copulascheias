@@ -15,6 +15,7 @@
 #' 
 #' @param expr string descrevendo o evento cuja probabilidade deve ser calculada. Veja Detalhes
 #' @param modelo modelo de copula como retornado por [`fit_modelo_cheia()`]
+#' @param nsims numero de amostras de Monte Carlo
 #' 
 #' @return escalar indicando a probabilidade do evento `expr`
 #' 
@@ -25,16 +26,16 @@
 #' mod <- fit_modelo_cheia(data)
 #' 
 #' # evento simples, considerando apenas uma variavel
-#' pcopula("ernestina_pico >= 500", mod)
+#' pcopula("ernestina_pico >= 500", mod, nsims = 1000)
 #' 
 #' # considerando agora duas
-#' pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", mod)
+#' pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", mod, nsims = 1000)
 #' 
 #' @export
 
-pcopula <- function(expr, modelo) {
+pcopula <- function(expr, modelo, nsims = 2e6) {
     inference <- parse_inference(expr, modelo)
-    run_inference(inference, modelo)
+    run_inference(inference, modelo, nsims)
 }
 
 # INTERNAS -----------------------------------------------------------------------------------------

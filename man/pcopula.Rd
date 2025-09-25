@@ -4,12 +4,14 @@
 \alias{pcopula}
 \title{Inferencia Em Modelos De Copula}
 \usage{
-pcopula(expr, modelo)
+pcopula(expr, modelo, nsims = 2e+06)
 }
 \arguments{
 \item{expr}{string descrevendo o evento cuja probabilidade deve ser calculada. Veja Detalhes}
 
 \item{modelo}{modelo de copula como retornado por \code{\link[=fit_modelo_cheia]{fit_modelo_cheia()}}}
+
+\item{nsims}{numero de amostras de Monte Carlo}
 }
 \value{
 escalar indicando a probabilidade do evento \code{expr}
@@ -36,9 +38,9 @@ data <- minicheias[, 4:6]
 mod <- fit_modelo_cheia(data)
 
 # evento simples, considerando apenas uma variavel
-pcopula("ernestina_pico >= 500", mod)
+pcopula("ernestina_pico >= 500", mod, nsims = 1000)
 
 # considerando agora duas
-pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", mod)
+pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", mod, nsims = 1000)
 
 }
