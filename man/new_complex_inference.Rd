@@ -7,7 +7,7 @@
 new_complex_inference(unitary_events, separators)
 }
 \arguments{
-\item{unitary_events}{lista de eventos unitarios ja interpretados por \code{\link[=parse_unitary_expr]{parse_unitary_expr()}}}
+\item{unitary_events}{lista de eventos unitarios ja interpretados por \code{\link[=parse_unitary_event]{parse_unitary_event()}}}
 
 \item{separators}{vetor de separadores de eventos}
 }

@@ -5,7 +5,7 @@
 #' @param x string no formato `"lhs (>=|<=) rhs` indicando um evento para inferencia
 #' @param modelo modelo com referencia ao qual o evento sera interpretado
 
-parse_unitary_expr <- function(x, modelo) {
+parse_unitary_event <- function(x, modelo) {
 
     vars <- get_event_vars(x)
     validate_vars(vars, modelo)

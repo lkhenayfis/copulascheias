@@ -6,8 +6,8 @@ test_that("parse_inference", {
     expect_true(inherits(inference, "simple_inference"))
 
     outer <- list(
-        parse_unitary_expr("ernestina_volume >= 400", modelo),
-        parse_unitary_expr("ernestina_pico >= 100", modelo)
+        parse_unitary_event("ernestina_volume >= 400", modelo),
+        parse_unitary_event("ernestina_pico >= 100", modelo)
     )
     expect_equal(unclass(inference), outer)
 

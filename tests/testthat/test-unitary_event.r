@@ -91,9 +91,9 @@ test_that("validate_vars", {
     expect_error(validate_vars("barra_grande_erro", modelo))
 })
 
-test_that("parse_unitary_expr", {
+test_that("parse_unitary_event", {
     modelo <- fit_modelo_cheia(minicheias)
-    evt <- parse_unitary_expr("barra_grande_duracao <= 10", modelo)
+    evt <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
 
     expect_true(inherits(evt, "unitary_event_u"))
     expect_equal(attr(evt, "bounds_x"), c(0, 10))
@@ -105,7 +105,7 @@ test_that("parse_unitary_expr", {
 
 test_that("event2bounds", {
     modelo <- fit_modelo_cheia(minicheias)
-    evt <- parse_unitary_expr("barra_grande_duracao <= 10", modelo)
+    evt <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
 
     expect_equal(event2bounds(evt), attr(evt, "bounds_x"))
     expect_equal(event2bounds(evt, "x"), attr(evt, "bounds_x"))

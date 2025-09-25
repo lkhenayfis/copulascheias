@@ -23,7 +23,7 @@ parse_inference <- function(expr, modelo) {
     seps <- split_separadores(expr)
 
     units <- split_eventos_unitarios(expr)
-    units <- lapply(units, parse_unitary_expr, modelo)
+    units <- lapply(units, parse_unitary_event, modelo)
 
     is_square <- all(seps == "&") && all(sapply(units, inherits, "unitary_event_u"))
     if (is_square) {
@@ -37,7 +37,7 @@ parse_inference <- function(expr, modelo) {
 #' 
 #' Gera um objeto da classe `simple_inference`, uma lista de eventos unitarios interpretados
 #' 
-#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_expr()]
+#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_event()]
 #' 
 #' @return argumento `unitary_events` com classe adicionada `simple_inference`
 
@@ -50,7 +50,7 @@ new_simple_inference <- function(unitary_events) {
 #' 
 #' Ainda nao implementado
 #' 
-#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_expr()]
+#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_event()]
 #' @param separators vetor de separadores de eventos
 
 new_complex_inference <- function(unitary_events, separators) {
