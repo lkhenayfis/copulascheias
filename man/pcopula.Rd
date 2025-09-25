@@ -4,7 +4,7 @@
 \alias{pcopula}
 \title{Inferencia Em Modelos De Copula}
 \usage{
-pcopula(expr, modelo, nsims = 2e+06)
+pcopula(expr, modelo, nsims = 2e+06, modo = c("defult", "lhs"))
 }
 \arguments{
 \item{expr}{string descrevendo o evento cuja probabilidade deve ser calculada. Veja Detalhes}
@@ -12,6 +12,9 @@ pcopula(expr, modelo, nsims = 2e+06)
 \item{modelo}{modelo de copula como retornado por \code{\link[=fit_modelo_cheia]{fit_modelo_cheia()}}}
 
 \item{nsims}{numero de amostras de Monte Carlo}
+
+\item{modo}{um de \code{c("default", "lhs")} indicando se a simulacao de Monte Carlo deve ser feita
+por amostragem comum ou hipercubo latino}
 }
 \value{
 escalar indicando a probabilidade do evento \code{expr}

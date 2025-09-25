@@ -16,6 +16,8 @@
 #' @param expr string descrevendo o evento cuja probabilidade deve ser calculada. Veja Detalhes
 #' @param modelo modelo de copula como retornado por [`fit_modelo_cheia()`]
 #' @param nsims numero de amostras de Monte Carlo
+#' @param modo um de `c("default", "lhs")` indicando se a simulacao de Monte Carlo deve ser feita
+#'     por amostragem comum ou hipercubo latino
 #' 
 #' @return escalar indicando a probabilidade do evento `expr`
 #' 
@@ -33,9 +35,13 @@
 #' 
 #' @export
 
-pcopula <- function(expr, modelo, nsims = 2e6) {
+pcopula <- function(expr, modelo, nsims = 2e6, modo = c("defult", "lhs")) {
+    modo <- match.arg(modo)
+    if ((modo == "lhs") && !requireNamespace("lhs", quietly = TRUE)) {
+        stop("Simulacao por hipercubo latino precisa do pacote 'lhs'")
+    }
     inference <- parse_inference(expr, modelo)
-    run_inference(inference, modelo, nsims)
+    run_inference(inference, modelo, nsims, modo)
 }
 
 # INTERNAS -----------------------------------------------------------------------------------------
@@ -47,18 +53,31 @@ pcopula <- function(expr, modelo, nsims = 2e6) {
 #' @param inference objeto inferenca
 #' @param modelo modelo ajustado no qual computar inferencia
 #' @param nsims numero de amostras de Monte Carlo
+#' @param modo um de `c("default", "lhs")` indicando se a simulacao de Monte Carlo deve ser feita
+#'     por amostragem comum ou hipercubo latino
 
-run_inference <- function(inference, modelo, nsims) UseMethod("run_inference", inference)
+run_inference <- function(inference, modelo, nsims, modo) UseMethod("run_inference", inference)
 
 #' @rdname run_inference
 
-run_inference.simple_inference <- function(inference, modelo, nsims = 2e6) {
+run_inference.simple_inference <- function(inference, modelo, nsims, modo) {
     bounds <- simple_inference2bounds(inference, modelo)
 
     vars <- modelo$vines$names
-    sim  <- sapply(vars, function(var) runif(nsims, bounds[[1]][var], bounds[[2]][var]))
     norm <- prod(sapply(vars, function(var) bounds[[2]][var] - bounds[[1]][var]))
+
+    sim_fun <- ifelse(modo == "default", rmunif, rmunifLHS)
+    sim <- sim_fun(nsims, length(vars), bounds[[1]], bounds[[2]])
 
     prob <- norm * mean(RVinePDF(sim, modelo$vines))
     return(prob)
+}
+
+rmunif <- function(n, d, min, max) {
+    sapply(seq_len(d), function(i) runif(n, min[i], max[i]))
+}
+
+rmunifLHS <- function(n, d, min, max) {
+    sim_lhs <- lhs::randomLHS(n, d)
+    sapply(seq_len(d), function(i) qunif(sim_lhs[, i], min[i], max[i]))
 }

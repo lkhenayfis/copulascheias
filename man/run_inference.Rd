@@ -5,9 +5,9 @@
 \alias{run_inference.simple_inference}
 \title{Executa Inferencia}
 \usage{
-run_inference(inference, modelo, nsims)
+run_inference(inference, modelo, nsims, modo)
 
-\method{run_inference}{simple_inference}(inference, modelo, nsims = 2e+06)
+\method{run_inference}{simple_inference}(inference, modelo, nsims, modo)
 }
 \arguments{
 \item{inference}{objeto inferenca}
@@ -15,6 +15,9 @@ run_inference(inference, modelo, nsims)
 \item{modelo}{modelo ajustado no qual computar inferencia}
 
 \item{nsims}{numero de amostras de Monte Carlo}
+
+\item{modo}{um de \code{c("default", "lhs")} indicando se a simulacao de Monte Carlo deve ser feita
+por amostragem comum ou hipercubo latino}
 }
 \description{
 Funcao interna para integracao de PDfs estimadas

@@ -16,5 +16,6 @@ Imports:
     data.table (>= 1.17.8)
 LazyData: true
 Suggests: 
+    lhs (>= 1.2.0),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
