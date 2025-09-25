@@ -5,12 +5,16 @@
 \alias{run_inference.simple_inference}
 \title{Executa Inferencia}
 \usage{
-run_inference(inference, modelo)
+run_inference(inference, modelo, nsims)
 
-\method{run_inference}{simple_inference}(inference, modelo, nsims = 2e+06, threads = 1)
+\method{run_inference}{simple_inference}(inference, modelo, nsims = 2e+06)
 }
 \arguments{
 \item{inference}{objeto inferenca}
+
+\item{modelo}{modelo ajustado no qual computar inferencia}
+
+\item{nsims}{numero de amostras de Monte Carlo}
 }
 \description{
 Funcao interna para integracao de PDfs estimadas

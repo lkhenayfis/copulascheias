@@ -21,14 +21,14 @@
 #' @examples 
 #' 
 #' # utilizando parte do dado interno do pacote
-#' data <- minicheias[, 1:3]
-#' mod <- fit_modelo_cheias(data)
+#' data <- minicheias[, 4:6]
+#' mod <- fit_modelo_cheia(data)
 #' 
 #' # evento simples, considerando apenas uma variavel
-#' pcopula("ernestina >= 500", modelo)
+#' pcopula("ernestina_pico >= 500", mod)
 #' 
 #' # considerando agora duas
-#' pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo)
+#' pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", mod)
 #' 
 #' @export
 
@@ -44,12 +44,14 @@ pcopula <- function(expr, modelo) {
 #' Funcao interna para integracao de PDfs estimadas
 #' 
 #' @param inference objeto inferenca
+#' @param modelo modelo ajustado no qual computar inferencia
+#' @param nsims numero de amostras de Monte Carlo
 
-run_inference <- function(inference, modelo) UseMethod("run_inference", inference)
+run_inference <- function(inference, modelo, nsims) UseMethod("run_inference", inference)
 
 #' @rdname run_inference
 
-run_inference.simple_inference <- function(inference, modelo, nsims = 2e6, threads = 1) {
+run_inference.simple_inference <- function(inference, modelo, nsims = 2e6) {
     bounds <- simple_inference2bounds(inference, modelo)
 
     vars <- modelo$vines$names

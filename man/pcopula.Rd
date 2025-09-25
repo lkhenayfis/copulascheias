@@ -32,13 +32,13 @@ Nao ha qualquer limite no numero de eventos.
 \examples{
 
 # utilizando parte do dado interno do pacote
-data <- minicheias[, 1:3]
-mod <- fit_modelo_cheias(data)
+data <- minicheias[, 4:6]
+mod <- fit_modelo_cheia(data)
 
 # evento simples, considerando apenas uma variavel
-pcopula("ernestina >= 500", modelo)
+pcopula("ernestina_pico >= 500", mod)
 
 # considerando agora duas
-pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", modelo)
+pcopula("(ernestina_pico >= 500) & (ernestina_volume >= 150)", mod)
 
 }

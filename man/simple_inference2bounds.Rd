@@ -9,7 +9,7 @@ simple_inference2bounds(inference, modelo = NULL)
 \arguments{
 \item{inference}{um objeto do tipo \code{simple_inference}}
 
-\item{modelo}{opcionalmente um modelo ajustado por \link{fit_modelo_cheia}. Veja Detalhes}
+\item{modelo}{opcionalmente um modelo ajustado por \code{\link[=fit_modelo_cheia]{fit_modelo_cheia()}}. Veja Detalhes}
 }
 \value{
 lista de dois vetores: lower e upper bounds de integracao

@@ -37,7 +37,7 @@ parse_inference <- function(expr, modelo) {
 #' 
 #' Gera um objeto da classe `simple_inference`, uma lista de eventos unitarios interpretados
 #' 
-#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_event]
+#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_expr()]
 #' 
 #' @return argumento `unitary_events` com classe adicionada `simple_inference`
 
@@ -49,6 +49,9 @@ new_simple_inference <- function(unitary_events) {
 #' Construtor Interno De `complex_inference`
 #' 
 #' Ainda nao implementado
+#' 
+#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_expr()]
+#' @param separators vetor de separadores de eventos
 
 new_complex_inference <- function(unitary_events, separators) {
     stop("Inferencias complexas (conjuntos nao quadrados) ainda nao suportadas")
@@ -90,7 +93,7 @@ split_separadores <- function(expr) {
 #' E recomendado sempre passar este argumento, do contrario erros podem decorrer.
 #' 
 #' @param inference um objeto do tipo `simple_inference`
-#' @param modelo opcionalmente um modelo ajustado por [fit_modelo_cheia]. Veja Detalhes
+#' @param modelo opcionalmente um modelo ajustado por [fit_modelo_cheia()]. Veja Detalhes
 #' 
 #' @return lista de dois vetores: lower e upper bounds de integracao
 

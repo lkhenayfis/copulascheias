@@ -29,6 +29,6 @@ pacote pois serao posteriormente utilizadas para interpretacao dos eventos de in
 
 # utilizando parte do dado interno do pacote
 data <- minicheias[, 1:3]
-mod <- fit_modelo_cheias(data)
+mod <- fit_modelo_cheia(data)
 
 }

@@ -8,6 +8,8 @@ parse_unitary_expr(x, modelo)
 }
 \arguments{
 \item{x}{string no formato \verb{"lhs (>=|<=) rhs} indicando um evento para inferencia}
+
+\item{modelo}{modelo com referencia ao qual o evento sera interpretado}
 }
 \description{
 Transforma string \code{x} em objeto para posterior construcao dos volumes de integracao

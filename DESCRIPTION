@@ -11,8 +11,8 @@ RoxygenNote: 7.3.2
 Depends: 
     R (>= 4.0)
 Imports: 
+    stats (>= 4.0.0),
     VineCopula (>= 2.6.1),
-    cubature (>= 2.1.4),
     data.table (>= 1.17.8)
 LazyData: true
 Suggests: 

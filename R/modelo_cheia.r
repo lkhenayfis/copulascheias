@@ -1,4 +1,3 @@
-
 #' Ajuste De Modelo De Cheias
 #' 
 #' Estima uma vine copula considerando todos os aspectos de cheia em `data`
@@ -19,7 +18,7 @@
 #' 
 #' # utilizando parte do dado interno do pacote
 #' data <- minicheias[, 1:3]
-#' mod <- fit_modelo_cheias(data)
+#' mod <- fit_modelo_cheia(data)
 #' 
 #' @export
 

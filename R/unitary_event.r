@@ -3,6 +3,7 @@
 #' Transforma string `x` em objeto para posterior construcao dos volumes de integracao
 #' 
 #' @param x string no formato `"lhs (>=|<=) rhs` indicando um evento para inferencia
+#' @param modelo modelo com referencia ao qual o evento sera interpretado
 
 parse_unitary_expr <- function(x, modelo) {
 
@@ -74,9 +75,11 @@ validate_vars <- function(vars, modelo) {
 
 # METODOS ------------------------------------------------------------------------------------------
 
-#' Auxiliar Para Conversao De Eventos Em Bounds
+#' Extrai Bounds De Evento Unitario
 #' 
 #' @param x evento unitario
+#' @param ... demais parametros de cada metodo
+#' @param mode um de `c("x", "u")`, indicando a escala em que bounds serao retornados
 
 event2bounds <- function(x, ...) UseMethod("event2bounds")
 

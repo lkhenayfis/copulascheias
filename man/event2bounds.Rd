@@ -4,7 +4,7 @@
 \alias{event2bounds}
 \alias{event2bounds.unitary_event_u}
 \alias{event2bounds.unitary_event_m}
-\title{Auxiliar Para Conversao De Eventos Em Bounds}
+\title{Extrai Bounds De Evento Unitario}
 \usage{
 event2bounds(x, ...)
 
@@ -14,7 +14,11 @@ event2bounds(x, ...)
 }
 \arguments{
 \item{x}{evento unitario}
+
+\item{...}{demais parametros de cada metodo}
+
+\item{mode}{um de \code{c("x", "u")}, indicando a escala em que bounds serao retornados}
 }
 \description{
-Auxiliar Para Conversao De Eventos Em Bounds
+Extrai Bounds De Evento Unitario
 }

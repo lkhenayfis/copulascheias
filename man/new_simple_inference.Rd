@@ -7,7 +7,7 @@
 new_simple_inference(unitary_events)
 }
 \arguments{
-\item{unitary_events}{lista de eventos unitarios ja interpretados por \link{parse_unitary_event}}
+\item{unitary_events}{lista de eventos unitarios ja interpretados por \code{\link[=parse_unitary_expr]{parse_unitary_expr()}}}
 }
 \value{
 argumento \code{unitary_events} com classe adicionada \code{simple_inference}
