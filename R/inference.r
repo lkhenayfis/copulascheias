@@ -112,6 +112,16 @@ simple_inference2bounds <- function(inference, modelo = NULL) {
     return(bounds)
 }
 
+#' Preenche Vetor Com Valores Padrao
+#' 
+#' Preenche `vec` com valores `fill` para todas as posicoes em `names` que nao existam em `vec`
+#' 
+#' @param vec vetor nomeado a ser preenchido
+#' @param names vetor de nomes que `vec` deve ter
+#' @param fill valor com o qual preencher posicoes faltantes
+#' 
+#' @return vetor `vec` preenchido com `fill` para todas as posicoes em `names` faltantes em `vec`
+
 fillvec <- function(vec, names, fill = 1) {
     full <- structure(rep(fill, length(names)), names = names)
     full[match(names(vec), names(full))] <- vec
