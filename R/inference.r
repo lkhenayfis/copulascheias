@@ -98,8 +98,9 @@ split_separadores <- function(expr) {
 #' @return lista de dois vetores: lower e upper bounds de integracao
 
 simple_inference2bounds <- function(inference, modelo = NULL) {
-    lower <- sapply(inference, function(i) attr(i, "bounds_u")[1])
-    upper <- sapply(inference, function(i) attr(i, "bounds_u")[2])
+    bounds <- lapply(inference, function(i) event2bounds(i, mode = "u"))
+    lower <- sapply(bounds, function(b) b[1])
+    upper <- sapply(bounds, function(b) b[2])
     names(lower) <- names(upper) <- unclass(inference)
 
     if (!is.null(modelo)) {
