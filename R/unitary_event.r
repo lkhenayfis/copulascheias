@@ -163,10 +163,10 @@ event2function.unitary_event_u <- function(x, ...) {
 
 event2function.unitary_event_m <- function(x, ...) {
     f_low <- with(attributes(x), {
-        str2function(expr, modelo$vines$names, bound = bounds_x[1], kind = "lower")
+        str2function(expr, unclass(x), bound = bounds_x[1], kind = "lower")
     })
     f_upp <- with(attributes(x), {
-        str2function(expr, modelo$vines$names, bound = bounds_x[2], kind = "upper")
+        str2function(expr, unclass(x), bound = bounds_x[2], kind = "upper")
     })
     out <- list(f_low, f_upp)
     out <- Filter(function(x) !is.null(x), out)

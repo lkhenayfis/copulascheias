@@ -25,7 +25,7 @@ str2function <- function(str, vars, bound = NA, kind = c("lower", "upper")) {
     body <- add_bound_comparison(body, bound, kind)
 
     out_fun <- build_function(args, body)
-    validate_function(out_fun, modelo, str)
+    validate_function(out_fun, vars, str)
 
     return(out_fun)
 }
@@ -86,10 +86,15 @@ names2args <- function(argnames) {
 #' @param str string original que deu origem a `fun`, para mensagens de erro
 #' 
 #' @return NULL invisivel se `fun` roda adequadamente, erro caso contrario
+#' 
+#' @examples
+#' modelo <- fit_modelo_cheia(minicheias)
+#' good_fun <- function(ernestina_pico, ernestina_volume, ...) ernestina_pico + ernestina_volume
+#' validate_function(good_fun, modelo, "ernestina_pico + ernestina_volume")
 
-validate_function <- function(fun, modelo, str) {
-    args <- lapply(modelo$vines$names, function(x) 1)
-    names(args) <- modelo$vines$names
+validate_function <- function(fun, vars, str) {
+    args <- lapply(vars, function(x) 1)
+    names(args) <- vars
 
     cc <- c(list(fun), args)
     test <- try(eval(as.call(cc), envir = new.env()), TRUE)
