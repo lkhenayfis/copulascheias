@@ -36,20 +36,20 @@ test_that("get_lower|upper", {
     str <- "var <= 1"
     lower <- get_lower(str)
     upper <- get_upper(str)
-    expect_equal(lower, 0)
+    expect_true(is.na(lower))
     expect_equal(upper, 1)
 
     str <- "var >= 0"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0)
-    expect_equal(upper, Inf)
+    expect_true(is.na(upper))
 
     str <- "10 <= var"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 10)
-    expect_equal(upper, Inf)
+    expect_true(is.na(upper))
 
     str <- "0 <= var <= 20"
     lower <- get_lower(str)
@@ -60,20 +60,20 @@ test_that("get_lower|upper", {
     str <- "var <= 1.2"
     lower <- get_lower(str)
     upper <- get_upper(str)
-    expect_equal(lower, 0)
+    expect_true(is.na(lower))
     expect_equal(upper, 1.2)
 
     str <- "var >= 0.5"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0.5)
-    expect_equal(upper, Inf)
+    expect_true(is.na(upper))
 
     str <- "10.98 <= var"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 10.98)
-    expect_equal(upper, Inf)
+    expect_true(is.na(upper))
 
     str <- "0.54 <= var <= 20.546"
     lower <- get_lower(str)
@@ -96,10 +96,12 @@ test_that("parse_unitary_event", {
     evt <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
 
     expect_true(inherits(evt, "unitary_event_u"))
-    expect_equal(attr(evt, "bounds_x"), c(0, 10))
+    raw_bounds <- attr(evt, "bounds_x")
+    expect_true(is.na(raw_bounds[1]) || raw_bounds[1] == 0)
+    expect_equal(raw_bounds[2], 10)
 
     bounds_u <- sapply(attr(evt, "bounds_x"),
-        function(x) attr(modelo, "ecdfs")[["barra_grande_duracao"]](x))
+        function(x) if (is.na(x)) NA else attr(modelo, "ecdfs")[["barra_grande_duracao"]](x))
     expect_equal(attr(evt, "bounds_u"), bounds_u)
 })
 
@@ -107,7 +109,38 @@ test_that("event2bounds", {
     modelo <- fit_modelo_cheia(minicheias)
     evt <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
 
-    expect_equal(event2bounds(evt), attr(evt, "bounds_x"))
-    expect_equal(event2bounds(evt, "x"), attr(evt, "bounds_x"))
-    expect_equal(event2bounds(evt, "u"), attr(evt, "bounds_u"))
+    bounds_x <- event2bounds(evt, "x")
+    expect_equal(bounds_x, c(0, 10))
+
+    bounds_u <- event2bounds(evt, "u")
+    expected_upper_u <- attr(modelo, "ecdfs")[["barra_grande_duracao"]](10)
+    expect_equal(bounds_u, c(0, expected_upper_u))
+
+    evt2 <- parse_unitary_event("barra_grande_duracao >= 5", modelo)
+    bounds_x2 <- event2bounds(evt2, "x")
+    expect_equal(bounds_x2, c(5, Inf))
+
+    bounds_u2 <- event2bounds(evt2, "u")
+    expected_lower_u2 <- attr(modelo, "ecdfs")[["barra_grande_duracao"]](5)
+    expect_equal(bounds_u2, c(expected_lower_u2, 1))
+})
+
+test_that("NA bounds handling in unitary_event_u objects", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    evt_upper <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
+    raw_bounds_upper <- attr(evt_upper, "bounds_x")
+    expect_true(is.na(raw_bounds_upper[1]))
+    expect_equal(raw_bounds_upper[2], 10)
+
+    evt_lower <- parse_unitary_event("barra_grande_duracao >= 5", modelo)
+    raw_bounds_lower <- attr(evt_lower, "bounds_x")
+    expect_equal(raw_bounds_lower[1], 5)
+    expect_true(is.na(raw_bounds_lower[2]))
+
+    evt_double <- parse_unitary_event("5 <= barra_grande_duracao <= 10", modelo)
+    raw_bounds_double <- attr(evt_double, "bounds_x")
+    expect_equal(raw_bounds_double[1], 5)
+    expect_equal(raw_bounds_double[2], 10)
+    expect_false(any(is.na(raw_bounds_double)))
 })
