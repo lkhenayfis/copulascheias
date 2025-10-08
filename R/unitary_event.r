@@ -21,6 +21,15 @@ parse_unitary_event <- function(x, modelo) {
     }
 }
 
+#' Valida E Extrai Informacoes De Expressao Matematica
+#' 
+#' Valida sintaxe da expressao matematica e extrai variaveis utilizadas
+#' 
+#' @param x string com expressao matematica para validar
+#' @param modelo modelo com referencia as variaveis disponiveis
+#' 
+#' @return lista com expressao limpa e vetor de variaveis encontradas
+
 parse_validate_math_expression <- function(x, modelo) {
     expr_str <- clean_expression_string(x)
 
@@ -34,6 +43,15 @@ parse_validate_math_expression <- function(x, modelo) {
     return(out)
 }
 
+#' Limpa String De Expressao Matematica
+#' 
+#' Remove parenteses externos e espacos, e opcionalmente remove operadores e bounds de comparacao
+#' 
+#' @param x string com expressao para limpar
+#' @param early logico indicando se deve parar antes de remover operadores de comparacao
+#' 
+#' @return string limpa
+
 clean_expression_string <- function(x, early = FALSE) {
     x <- gsub("^\\(", "", x)
     x <- gsub("\\)$", "", x)
@@ -45,6 +63,14 @@ clean_expression_string <- function(x, early = FALSE) {
     x <- sub(" ?<= ?[[:digit:]]+(\\.[[:digit:]]*)?$", "", x)
     return(x)
 }
+
+#' Extrai Variaveis De Expressao AST
+#' 
+#' Recursivamente extrai nomes de simbolos de uma expressao parseada (AST)
+#' 
+#' @param expr expressao parseada como objeto language
+#' 
+#' @return vetor de caracteres com nomes das variaveis encontradas
 
 extract_variables_from_expr <- function(expr) {
     if (is.symbol(expr)) {
@@ -60,6 +86,15 @@ extract_variables_from_expr <- function(expr) {
     return(character(0))
 }
 
+#' Valida Existencia De Variaveis No Modelo
+#' 
+#' Verifica se todas as variaveis especificadas existem no modelo ajustado
+#' 
+#' @param vars vetor de nomes de variaveis para validar
+#' @param modelo modelo ajustado contendo informacoes sobre variaveis disponiveis
+#' 
+#' @return NULL invisivel se todas as variaveis existem, erro caso contrario
+
 validate_vars_exist <- function(vars, modelo) {
     model_vars <- modelo$vines$names
     missing_vars <- setdiff(vars, model_vars)
@@ -67,6 +102,20 @@ validate_vars_exist <- function(vars, modelo) {
         stop("Variaveis de inferencia nao existem no modelo: ", paste(missing_vars, collapse = ", "))
     }
 }
+
+#' Extrai Bounds De Expressao
+#' 
+#' Extrai bounds inferior e superior de expressao do tipo "var <= b", "var >= b" ou "a <= var <= b".
+#' 
+#' @param x string com expressao de evento unitario
+#' @param modelo modelo com referencia as variaveis disponiveis
+#'
+#' @return vetor numerico de dois elementos: lower e upper bounds, NA se inexistente na expressao
+#' 
+#' @name get_bounds
+NULL
+
+#' @rdname get_bounds
 
 get_lower <- function(x, modelo) {
     x <- clean_expression_string(x, early = TRUE)
@@ -80,6 +129,8 @@ get_lower <- function(x, modelo) {
     if (identical(val, numeric(0))) NA else val
 }
 
+#' @rdname get_bounds
+
 get_upper <- function(x, modelo) {
     x <- clean_expression_string(x, early = TRUE)
     val <- regmatches(x, regexpr("(?<=(<=))([[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
@@ -88,6 +139,24 @@ get_upper <- function(x, modelo) {
 }
 
 # CONSTRUTORES INTERNOS ----------------------------------------------------------------------------
+
+#' Constroi Objeto Evento Unitario
+#' 
+#' Construtores internos para eventos unitarios univariados e multivariados
+#' 
+#' @param lower bound inferior do evento
+#' @param upper bound superior do evento
+#' @param var nome da variavel do evento (univariado)
+#' @param vars vetor de nomes das variaveis do evento (multivariado)
+#' @param expr string com expressao matematica do evento (multivariado)
+#' @param modelo modelo com referencia as variaveis disponiveis
+#'
+#' @return objeto do tipo `unitary_event_u` ou `unitary_event_m`
+#' 
+#' @name new_unitary_event
+NULL
+
+#' @rdname new_unitary_event
 
 new_unitary_event_u <- function(lower, upper, var, modelo) {
 
@@ -101,6 +170,8 @@ new_unitary_event_u <- function(lower, upper, var, modelo) {
 
     return(new)
 }
+
+#' @rdname new_unitary_event
 
 new_unitary_event_m <- function(lower, upper, vars, expr, modelo) {
     new <- structure(vars, class = "unitary_event_m")
@@ -118,6 +189,8 @@ new_unitary_event_m <- function(lower, upper, vars, expr, modelo) {
 #' @param x evento unitario
 #' @param ... demais parametros de cada metodo
 #' @param mode um de `c("x", "u")`, indicando a escala em que bounds serao retornados
+#' 
+#' @return vetor numerico de dois elementos: lower e upper bounds ou erro se multivariado
 
 event2bounds <- function(x, ...) UseMethod("event2bounds")
 
@@ -148,8 +221,9 @@ event2bounds.unitary_event_m <- function(x) {
 #' haviam bounds inferiores e superiores, duas funcoes serao retornadas, uma para cada bound.
 #' 
 #' @param x evento unitario
+#' @param ... demais parametros de cada metodo
 #' 
-#' @return lista com funcoes geradas
+#' @return lista com funcoes geradas ou erro se univariado
 
 event2function <- function(x, ...) UseMethod("event2function")
 

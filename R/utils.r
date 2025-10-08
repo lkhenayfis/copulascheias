@@ -30,12 +30,32 @@ str2function <- function(str, vars, bound = NA, kind = c("lower", "upper")) {
     return(out_fun)
 }
 
+#' Constroi Funcao A Partir De Argumentos E Corpo
+#' 
+#' Gera uma funcao com argumentos `args` e corpo `body`
+#' 
+#' @param args lista de argumentos para a funcao
+#' @param body corpo da funcao, como uma expressao
+#' 
+#' @return funcao gerada
+
 build_function <- function(args, body) {
     out_fun <- function(...) NULL
     formals(out_fun) <- c(args, formals(out_fun))
     body(out_fun) <- body
     return(out_fun)
 }
+
+#' Adiciona Comparacao De Bound Ao Corpo De Funcao
+#' 
+#' Altera corpo `body` para incluir comparacao com `bound` no formato `f(x) <= 0`
+#' 
+#' @param body corpo da funcao, como uma expressao
+#' @param bound valor numerico que sera usado na comparacao do corpo da funcao
+#' @param kind um de `c("lower", "upper")`, indicando se a comparacao sera `f(x) >= bound` ou
+#'     `f(x) <= bound`
+#' 
+#' @return corpo alterado, como uma expressao
 
 add_bound_comparison <- function(body, bound, kind = c("lower", "upper")) {
     body <- deparse(body)
@@ -82,15 +102,10 @@ names2args <- function(argnames) {
 #' Tenta executar `fun` com argumentos dummy; se falhar, retorna erro
 #' 
 #' @param fun funcao a ser testada
-#' @param modelo modelo com referencia ao qual a funcao sera interpretada
+#' @param vars vetor de nomes de variaveis que podem ser usadas em `str`
 #' @param str string original que deu origem a `fun`, para mensagens de erro
 #' 
 #' @return NULL invisivel se `fun` roda adequadamente, erro caso contrario
-#' 
-#' @examples
-#' modelo <- fit_modelo_cheia(minicheias)
-#' good_fun <- function(ernestina_pico, ernestina_volume, ...) ernestina_pico + ernestina_volume
-#' validate_function(good_fun, modelo, "ernestina_pico + ernestina_volume")
 
 validate_function <- function(fun, vars, str) {
     args <- lapply(vars, function(x) 1)

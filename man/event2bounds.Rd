@@ -19,6 +19,9 @@ event2bounds(x, ...)
 
 \item{mode}{um de \code{c("x", "u")}, indicando a escala em que bounds serao retornados}
 }
+\value{
+vetor numerico de dois elementos: lower e upper bounds ou erro se multivariado
+}
 \description{
 Extrai Bounds De Evento Unitario
 }
