@@ -6,14 +6,14 @@
 #' @param modelo modelo com referencia ao qual o evento sera interpretado
 
 parse_unitary_event <- function(x, modelo) {
+    parsed <- parse_validate_math_expression(x, modelo)
 
-    vars <- get_event_vars(x)
-    validate_vars(vars, modelo)
+    expr <- parsed[[1]]
+    vars <- parsed[[2]]
+    lower <- get_lower(expr, modelo)
+    upper <- get_upper(expr, modelo)
 
-    lower <- get_lower(x, modelo)
-    upper <- get_upper(x, modelo)
-
-    is_multivar <- grepl("(\\+|\\-)", vars)
+    is_multivar <- length(vars) > 1
     if (is_multivar) {
         new_unitary_event_m(lower, upper, vars, modelo)
     } else {
@@ -21,27 +21,64 @@ parse_unitary_event <- function(x, modelo) {
     }
 }
 
-get_event_vars <- function(x) {
-    x <- gsub("(\\(|\\))", "", x)
+parse_validate_math_expression <- function(x, modelo) {
+    expr_str <- clean_expression_string(x)
+
+    parsed <- try(str2lang(expr_str), silent = TRUE)
+    if (inherits(parsed, "try-error")) stop("Expressao com erro: ", expr_str)
+
+    vars <- extract_variables_from_expr(parsed)
+    validate_vars_exist(vars, modelo)
+
+    out <- list(expr_str, vars)
+    return(out)
+}
+
+clean_expression_string <- function(x) {
+    x <- gsub("^\\(", "", x)
+    x <- gsub("\\)$", "", x)
     x <- sub("^[[:digit:]]+(\\.[[:digit:]]*)? ?<= ?", "", x)
     x <- sub(" ?>= ?[[:digit:]]+(\\.[[:digit:]]*)?$", "", x)
     x <- sub(" ?<= ?[[:digit:]]+(\\.[[:digit:]]*)?$", "", x)
+    x <- trimws(x)
     return(x)
 }
 
-get_lower <- function(x, modelo) {
-    # procura bound da forma b <= x (presente em expressoes do tipo a <= x <= b)
-    val <- regmatches(x, regexpr("([[:digit:]]+(\\.[[:digit:]]*)? )(?=(<=))", x, perl = TRUE))
+extract_variables_from_expr <- function(expr) {
+    if (is.symbol(expr)) {
+        return(as.character(expr))
+    }
+    if (is.call(expr) && length(expr) > 1) {
+        symbols <- character(0)
+        for (i in 2:length(expr)) {
+            symbols <- c(symbols, extract_variables_from_expr(expr[[i]]))
+        }
+        return(symbols)
+    }
+    return(character(0))
+}
+
+validate_vars_exist <- function(vars, modelo) {
+    model_vars <- modelo$vines$names
+    missing_vars <- setdiff(vars, model_vars)
+    if (length(missing_vars) > 0) {
+        stop("Variaveis de inferencia nao existem no modelo: ", paste(missing_vars, collapse = ", "))
+    }
+}
+
+get_lower <- function(expr, modelo) {
+    # procura bound da forma b <= expr (presente em expressoes do tipo a <= expr <= b)
+    val <- regmatches(expr, regexpr("([[:digit:]]+(\\.[[:digit:]]*)? )(?=(<=))", expr, perl = TRUE))
     if (length(val) == 0) {
-        # caso nao ache, procura x >= b
-        val <- regmatches(x, regexpr("(?<=(>=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
+        # caso nao ache, procura expr >= b
+        val <- regmatches(expr, regexpr("(?<=(>=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", expr, perl = TRUE))
     }
     val <- as.numeric(val)
     if (identical(val, numeric(0))) NA else val
 }
 
-get_upper <- function(x, modelo) {
-    val <- regmatches(x, regexpr("(?<=(<=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
+get_upper <- function(expr, modelo) {
+    val <- regmatches(expr, regexpr("(?<=(<=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", expr, perl = TRUE))
     val <- as.numeric(val)
     if (identical(val, numeric(0))) NA else val
 }
@@ -63,14 +100,6 @@ new_unitary_event_u <- function(lower, upper, var, modelo) {
 
 new_unitary_event_m <- function(lower, upper, var, modelo) {
     stop("Eventos unitarios multivariados ainda nao sao suportados")
-}
-
-# VALIDACAO ----------------------------------------------------------------------------------------
-
-validate_vars <- function(vars, modelo) {
-    vars <- strsplit(vars, " ?\\+ ?")[[1]]
-    has_all_vars <- all(vars %in% modelo$vines$names)
-    if (!has_all_vars) stop("Algumas variaveis de inferencia nao existem no modelo")
 }
 
 # METODOS ------------------------------------------------------------------------------------------
