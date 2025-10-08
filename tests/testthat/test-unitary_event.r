@@ -80,6 +80,42 @@ test_that("get_lower|upper", {
     upper <- get_upper(str)
     expect_equal(lower, 0.54)
     expect_equal(upper, 20.546)
+
+    str <- "100 <= ernestina_pico <= 100"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_equal(lower, 100)
+    expect_equal(upper, 100)
+
+    str <- "0.12345 <= var <= 999.98765"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_equal(lower, 0.12345)
+    expect_equal(upper, 999.98765)
+
+    str <- "  0  <=  var  <=  20  "
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_equal(lower, 0)
+    expect_equal(upper, 20)
+
+    str <- "0<=var<=20"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_true(is.na(lower))
+    expect_true(is.na(upper))
+
+    str <- "ernestina_pico + ernestina_volume <= 1000"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_true(is.na(lower))
+    expect_equal(upper, 1000)
+
+    str <- "1 <= ernestina_pico / ernestina_volume"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_equal(lower, 1)
+    expect_true(is.na(upper))
 })
 
 test_that("validate_vars", {
