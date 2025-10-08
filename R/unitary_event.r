@@ -10,8 +10,8 @@ parse_unitary_event <- function(x, modelo) {
 
     expr <- parsed[[1]]
     vars <- parsed[[2]]
-    lower <- get_lower(expr, modelo)
-    upper <- get_upper(expr, modelo)
+    lower <- get_lower(x, modelo)
+    upper <- get_upper(x, modelo)
 
     is_multivar <- length(vars) > 1
     if (is_multivar) {
@@ -34,13 +34,15 @@ parse_validate_math_expression <- function(x, modelo) {
     return(out)
 }
 
-clean_expression_string <- function(x) {
+clean_expression_string <- function(x, early = FALSE) {
     x <- gsub("^\\(", "", x)
     x <- gsub("\\)$", "", x)
+    x <- gsub(" ", "", x)
+    if (early) return(x)
+
     x <- sub("^[[:digit:]]+(\\.[[:digit:]]*)? ?<= ?", "", x)
     x <- sub(" ?>= ?[[:digit:]]+(\\.[[:digit:]]*)?$", "", x)
     x <- sub(" ?<= ?[[:digit:]]+(\\.[[:digit:]]*)?$", "", x)
-    x <- trimws(x)
     return(x)
 }
 
@@ -66,19 +68,21 @@ validate_vars_exist <- function(vars, modelo) {
     }
 }
 
-get_lower <- function(expr, modelo) {
-    # procura bound da forma b <= expr (presente em expressoes do tipo a <= expr <= b)
-    val <- regmatches(expr, regexpr("([[:digit:]]+(\\.[[:digit:]]*)? )(?=(<=))", expr, perl = TRUE))
+get_lower <- function(x, modelo) {
+    x <- clean_expression_string(x, early = TRUE)
+    # procura bound da forma b <= x (presente em expressoes do tipo a <= x <= b)
+    val <- regmatches(x, regexpr("([[:digit:]]+(\\.[[:digit:]]*)?)(?=(<=))", x, perl = TRUE))
     if (length(val) == 0) {
-        # caso nao ache, procura expr >= b
-        val <- regmatches(expr, regexpr("(?<=(>=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", expr, perl = TRUE))
+        # caso nao ache, procura x >= b
+        val <- regmatches(x, regexpr("(?<=(>=))([[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
     }
     val <- as.numeric(val)
     if (identical(val, numeric(0))) NA else val
 }
 
-get_upper <- function(expr, modelo) {
-    val <- regmatches(expr, regexpr("(?<=(<=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", expr, perl = TRUE))
+get_upper <- function(x, modelo) {
+    x <- clean_expression_string(x, early = TRUE)
+    val <- regmatches(x, regexpr("(?<=(<=))([[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
     val <- as.numeric(val)
     if (identical(val, numeric(0))) NA else val
 }

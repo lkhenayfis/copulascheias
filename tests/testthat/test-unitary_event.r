@@ -102,8 +102,8 @@ test_that("get_lower|upper", {
     str <- "0<=var<=20"
     lower <- get_lower(str)
     upper <- get_upper(str)
-    expect_true(is.na(lower))
-    expect_true(is.na(upper))
+    expect_equal(lower, 0)
+    expect_equal(upper, 20)
 
     str <- "ernestina_pico + ernestina_volume <= 1000"
     lower <- get_lower(str)
