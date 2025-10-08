@@ -37,13 +37,13 @@ get_lower <- function(x, modelo) {
         val <- regmatches(x, regexpr("(?<=(>=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
     }
     val <- as.numeric(val)
-    if (identical(val, numeric(0))) 0 else val
+    if (identical(val, numeric(0))) NA else val
 }
 
 get_upper <- function(x, modelo) {
     val <- regmatches(x, regexpr("(?<=(<=))( ?[[:digit:]]+(\\.[[:digit:]]*)?)", x, perl = TRUE))
     val <- as.numeric(val)
-    if (identical(val, numeric(0))) Inf else val
+    if (identical(val, numeric(0))) NA else val
 }
 
 # CONSTRUTORES INTERNOS ----------------------------------------------------------------------------
@@ -88,7 +88,10 @@ event2bounds <- function(x, ...) UseMethod("event2bounds")
 event2bounds.unitary_event_u <- function(x, mode = c("x", "u"), ...) {
     mode <- match.arg(mode)
     mode <- paste0("bounds_", mode)
-    attr(x, mode)
+    bounds <- attr(x, mode)
+    if (is.na(bounds[1])) bounds[1] <- 0
+    if (is.na(bounds[2])) bounds[2] <- ifelse(mode == "bounds_x", Inf, 1)
+    return(bounds)
 }
 
 #' @rdname event2bounds
