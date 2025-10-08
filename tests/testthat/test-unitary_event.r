@@ -225,14 +225,21 @@ test_that("parse_unitary_event univariate events", {
 test_that("parse_unitary_event multivariate events", {
     modelo <- fit_modelo_cheia(minicheias)
 
-    expect_error(parse_unitary_event("ernestina_pico + ernestina_volume >= 1000", modelo),
-        "Eventos unitarios multivariados ainda nao sao suportados")
+    evt <- parse_unitary_event("ernestina_pico + ernestina_volume >= 1000", modelo)
+    expect_true(inherits(evt, "unitary_event_m"))
+    expect_equal(attr(evt, "bounds_x"), c(1000, NA))
+    expect_equal(attr(evt, "expr"), "ernestina_pico+ernestina_volume")
 
-    expect_error(parse_unitary_event("log(ernestina_pico * ernestina_volume) <= 5", modelo),
-        "Eventos unitarios multivariados ainda nao sao suportados")
+    evt <- parse_unitary_event("log(ernestina_pico * ernestina_volume) <= 5", modelo)
+    expect_true(inherits(evt, "unitary_event_m"))
+    expect_equal(attr(evt, "bounds_x"), c(NA, 5))
+    expect_equal(attr(evt, "expr"), "log(ernestina_pico*ernestina_volume)")
 
-    expect_error(parse_unitary_event("ernestina_pico / barra_grande_pico >= 2", modelo),
-        "Eventos unitarios multivariados ainda nao sao suportados")
+    evt <- parse_unitary_event("2 <=  ernestina_pico / barra_grande_pico <= 3 ", modelo)
+    expect_true(inherits(evt, "unitary_event_m"))
+    expect_equal(attr(evt, "bounds_x"), c(2, 3))
+    expect_equal(attr(evt, "expr"), "ernestina_pico/barra_grande_pico")
+
 })
 
 test_that("parse_unitary_event error handling", {
@@ -261,6 +268,10 @@ test_that("event2bounds", {
     bounds_u2 <- event2bounds(evt2, "u")
     expected_lower_u2 <- attr(modelo, "ecdfs")[["barra_grande_duracao"]](5)
     expect_equal(bounds_u2, c(expected_lower_u2, 1))
+
+    evt3 <- parse_unitary_event("100 <= barra_grande_volume + ernestina_pico <= 800", modelo)
+    expect_error(event2bounds(evt3, "x"))
+    expect_error(event2bounds(evt3, "u"))
 })
 
 test_that("NA bounds handling in unitary_event_u objects", {
@@ -281,4 +292,32 @@ test_that("NA bounds handling in unitary_event_u objects", {
     expect_equal(raw_bounds_double[1], 5)
     expect_equal(raw_bounds_double[2], 10)
     expect_false(any(is.na(raw_bounds_double)))
+})
+
+test_that("event2function", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    evt <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
+    expect_error(event2function(evt))
+
+    evt2 <- parse_unitary_event("ernestina_pico + ernestina_volume >= 1000", modelo)
+    ff2 <- event2function(evt2)
+    expect_true(is.list(ff2))
+    expect_equal(length(ff2), 1)
+    expect_equal(as.list(formals(ff2[[1]])), alist(ernestina_pico = NULL, ernestina_volume = NULL, ... = ))
+    expect_equal(ff2[[1]](500, 500), 0)
+    expect_equal(ff2[[1]](400, 500), 100)
+
+    evt2 <- parse_unitary_event("100 <= ernestina_pico + ernestina_volume <= 1000", modelo)
+    ff2 <- event2function(evt2)
+    expect_true(is.list(ff2))
+    expect_equal(length(ff2), 2)
+
+    expect_equal(as.list(formals(ff2[[1]])), alist(ernestina_pico = NULL, ernestina_volume = NULL, ... = ))
+    expect_equal(ff2[[1]](50, 50), 0)
+    expect_equal(ff2[[1]](400, 500), -800)
+
+    expect_equal(as.list(formals(ff2[[2]])), alist(ernestina_pico = NULL, ernestina_volume = NULL, ... = ))
+    expect_equal(ff2[[2]](500, 500), 0)
+    expect_equal(ff2[[2]](400, 500), -100)
 })
