@@ -1,39 +1,64 @@
 #' Gera Funcao A Partir De String
 #' 
-#' Gera uma funcao cujo corpo e `str` e argumentos as dimensoes de `modelo`
+#' Gera uma funcao com corpo baseado em `str` e `bounds` e argumentos `vars`
+#' 
+#' `str2function` gera funces `g(x)` para um contexto de comparacao `g(x) <= 0`. A funcao `g(x)`
+#' sera montada a partir de `str`, que deve ser uma expressao valida em R, e `bound`. Se `kind` for
+#' `"lower"`, a funcao sera `g(x) = bound - (str)` e, se for `"upper"`, `g(x) = (str) - bound`.
 #' 
 #' @param str string com expressao que sera o corpo da funcao
-#' @param modelo modelo com referencia ao qual a funcao sera interpretada
+#' @param vars vetor de nomes de variaveis que podem ser usadas em `str`
+#' @param bound valor numerico que sera usado na comparacao do corpo da funcao
+#' @param kind um de `c("lower", "upper")`, indicando se a comparacao sera `f(x) >= bound` ou
+#'     `f(x) <= bound`
 #' 
-#' @return funcao com corpo `str` e argumentos as variaveis de `modelo` presentes em `str`
+#' @return funcao gerada
 
-str2function <- function(str, modelo) {
-    body <- str2lang(str)
-    argnames <- vars_in_str(str, modelo)
+str2function <- function(str, vars, bound = NA, kind = c("lower", "upper")) {
+    if (is.na(bound)) return(NULL)
+
+    argnames <- vars_in_str(str, vars)
     argnames <- Filter(function(x) grepl(x, str), argnames)
     args  <- names2args(argnames)
 
-    out_fun <- function(...) NULL
+    body <- str2lang(str)
+    body <- add_bound_comparison(body, bound, kind)
 
-    formals(out_fun) <- c(args, formals(out_fun))
-    body(out_fun) <- body
-
-    null <- validate_function(out_fun, modelo, str)
+    out_fun <- build_function(args, body)
+    validate_function(out_fun, modelo, str)
 
     return(out_fun)
 }
 
+build_function <- function(args, body) {
+    out_fun <- function(...) NULL
+    formals(out_fun) <- c(args, formals(out_fun))
+    body(out_fun) <- body
+    return(out_fun)
+}
+
+add_bound_comparison <- function(body, bound, kind = c("lower", "upper")) {
+    body <- deparse(body)
+    kind <- match.arg(kind)
+    if (kind == "lower") {
+        body <- paste0(bound, "-(", body, ")")
+    } else {
+        body <- paste0(body, "-", bound)
+    }
+    body <- str2lang(body)
+    return(body)
+}
+
 #' Extrai Variaveis De String
 #'  
-#' Extrai nomes de variaveis de `modelo` que aparecem em `str`
+#' Filtra `vars` para aquelas que aparecem em `str`
 #' 
 #' @param str string com expressao que sera analisada
-#' @param modelo modelo com referencia ao qual a funcao sera interpretada
+#' @param vars vetor de nomes de variaveis para procurar
 #' 
-#' @return vetor de nomes de variaveis de `modelo` que aparecem em `str`
+#' @return subset dos elementos de `vars` que aparecem em `str`
 
-vars_in_str <- function(str, modelo) {
-    vars <- modelo$vines$names
+vars_in_str <- function(str, vars) {
     vars <- Filter(function(x) grepl(x, str), vars)
     return(vars)
 }
