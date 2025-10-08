@@ -15,7 +15,7 @@ parse_unitary_event <- function(x, modelo) {
 
     is_multivar <- length(vars) > 1
     if (is_multivar) {
-        new_unitary_event_m(lower, upper, vars, modelo)
+        new_unitary_event_m(lower, upper, vars, expr, modelo)
     } else {
         new_unitary_event_u(lower, upper, vars, modelo)
     }
@@ -102,8 +102,13 @@ new_unitary_event_u <- function(lower, upper, var, modelo) {
     return(new)
 }
 
-new_unitary_event_m <- function(lower, upper, var, modelo) {
-    stop("Eventos unitarios multivariados ainda nao sao suportados")
+new_unitary_event_m <- function(lower, upper, vars, expr, modelo) {
+    new <- structure(vars, class = "unitary_event_m")
+
+    attr(new, "bounds_x") <- c(lower, upper)
+    attr(new, "expr") <- expr
+
+    return(new)
 }
 
 # METODOS ------------------------------------------------------------------------------------------
