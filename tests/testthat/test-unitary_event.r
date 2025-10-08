@@ -1,81 +1,114 @@
-test_that("get_event_vars", {
-    str <- "var <= 1"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
+test_that("parse_validate_math_expression simple expressions", {
+    modelo <- fit_modelo_cheia(minicheias)
 
-    str <- "var >= 1"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
+    result <- parse_validate_math_expression("ernestina_pico <= 1", modelo)
+    expect_equal(result[[1]], "ernestina_pico")
+    expect_equal(result[[2]], "ernestina_pico")
 
-    str <- "0 <= var"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
+    result <- parse_validate_math_expression("0 <= barra_grande_volume <= 1", modelo)
+    expect_equal(result[[1]], "barra_grande_volume")
+    expect_equal(result[[2]], "barra_grande_volume")
 
-    str <- "0 <= var <= 1"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
-
-    str <- "var <= 1.2"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
-
-    str <- "var >= 1.2"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
-
-    str <- "0.8 <= var"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
-
-    str <- "0.8 <= var <= 1.2"
-    evt_var <- get_event_vars(str)
-    expect_equal(evt_var, "var")
+    result <- parse_validate_math_expression("ernestina_duracao >= 5.5", modelo)
+    expect_equal(result[[1]], "ernestina_duracao")
+    expect_equal(result[[2]], "ernestina_duracao")
 })
 
-test_that("get_lower|upper", {
-    str <- "var <= 1"
+test_that("parse_validate_math_expression mathematical expressions", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    result <- parse_validate_math_expression("ernestina_pico + ernestina_volume >= 1000", modelo)
+    expect_equal(result[[1]], "ernestina_pico+ernestina_volume")
+    expect_equal(result[[2]], c("ernestina_pico", "ernestina_volume"))
+
+    result <- parse_validate_math_expression("ernestina_pico - barra_grande_pico <= 500", modelo)
+    expect_equal(result[[1]], "ernestina_pico-barra_grande_pico")
+    expect_equal(result[[2]], c("ernestina_pico", "barra_grande_pico"))
+
+    result <- parse_validate_math_expression("ernestina_pico * ernestina_volume >= 800", modelo)
+    expect_equal(result[[1]], "ernestina_pico*ernestina_volume")
+    expect_equal(result[[2]], c("ernestina_pico", "ernestina_volume"))
+
+    result <- parse_validate_math_expression("ernestina_pico / ernestina_volume <= 2", modelo)
+    expect_equal(result[[1]], "ernestina_pico/ernestina_volume")
+    expect_equal(result[[2]], c("ernestina_pico", "ernestina_volume"))
+})
+
+test_that("parse_validate_math_expression function calls", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    result <- parse_validate_math_expression("log(ernestina_pico) <= 5", modelo)
+    expect_equal(result[[1]], "log(ernestina_pico)")
+    expect_equal(result[[2]], "ernestina_pico")
+
+    result <- parse_validate_math_expression("sqrt(ernestina_volume) >= 10", modelo)
+    expect_equal(result[[1]], "sqrt(ernestina_volume)")
+    expect_equal(result[[2]], "ernestina_volume")
+
+    result <- parse_validate_math_expression("exp(barra_grande_pico / 100) <= 2", modelo)
+    expect_equal(result[[1]], "exp(barra_grande_pico/100)")
+    expect_equal(result[[2]], "barra_grande_pico")
+})
+
+test_that("parse_validate_math_expression complex combinations", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    result <- parse_validate_math_expression("log(ernestina_pico * ernestina_volume) <= 5", modelo)
+    expect_equal(result[[1]], "log(ernestina_pico*ernestina_volume)")
+    expect_equal(result[[2]], c("ernestina_pico", "ernestina_volume"))
+
+    result <- parse_validate_math_expression("0 <= (ernestina_pico + ernestina_volume) / 2 <= 300", modelo)
+    expect_equal(result[[1]], "(ernestina_pico+ernestina_volume)/2")
+    expect_equal(result[[2]], c("ernestina_pico", "ernestina_volume"))
+
+    result <- parse_validate_math_expression("sqrt(ernestina_pico^2 + ernestina_volume^2) >= 100", modelo)
+    expect_equal(result[[1]], "sqrt(ernestina_pico^2+ernestina_volume^2)")
+    expect_equal(result[[2]], c("ernestina_pico", "ernestina_volume"))
+})
+
+test_that("parse_validate_math_expression error handling", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    expect_error(parse_validate_math_expression("nonexistent_var <= 1", modelo))
+    expect_error(parse_validate_math_expression("ernestina_pico + nonexistent_var >= 100", modelo))
+    expect_error(parse_validate_math_expression("invalid + + syntax", modelo))
+    expect_error(parse_validate_math_expression("log( >= 5", modelo))
+})
+
+test_that("get_lower|upper basic functionality", {
+    str <- "ernestina_pico"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_true(is.na(lower))
-    expect_equal(upper, 1)
-
-    str <- "var >= 0"
-    lower <- get_lower(str)
-    upper <- get_upper(str)
-    expect_equal(lower, 0)
     expect_true(is.na(upper))
 
-    str <- "10 <= var"
-    lower <- get_lower(str)
-    upper <- get_upper(str)
-    expect_equal(lower, 10)
-    expect_true(is.na(upper))
-
-    str <- "0 <= var <= 20"
+    str <- "0 <= ernestina_pico <= 20"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0)
     expect_equal(upper, 20)
 
-    str <- "var <= 1.2"
+    str <- "ernestina_pico <= 1.2"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_true(is.na(lower))
     expect_equal(upper, 1.2)
 
-    str <- "var >= 0.5"
+    str <- "ernestina_pico >= 0.5"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0.5)
     expect_true(is.na(upper))
 
-    str <- "10.98 <= var"
+    str <- "10.98 <= ernestina_pico"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 10.98)
     expect_true(is.na(upper))
+})
 
-    str <- "0.54 <= var <= 20.546"
+test_that("get_lower|upper precision and edge cases", {
+    str <- "0.54 <= ernestina_pico <= 20.546"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0.54)
@@ -87,24 +120,26 @@ test_that("get_lower|upper", {
     expect_equal(lower, 100)
     expect_equal(upper, 100)
 
-    str <- "0.12345 <= var <= 999.98765"
+    str <- "0.12345 <= ernestina_pico <= 999.98765"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0.12345)
     expect_equal(upper, 999.98765)
 
-    str <- "  0  <=  var  <=  20  "
+    str <- "  0  <=  ernestina_pico  <=  20  "
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0)
     expect_equal(upper, 20)
 
-    str <- "0<=var<=20"
+    str <- "0<=ernestina_pico<=20"
     lower <- get_lower(str)
     upper <- get_upper(str)
     expect_equal(lower, 0)
     expect_equal(upper, 20)
+})
 
+test_that("get_lower|upper mathematical expressions", {
     str <- "ernestina_pico + ernestina_volume <= 1000"
     lower <- get_lower(str)
     upper <- get_upper(str)
@@ -116,29 +151,96 @@ test_that("get_lower|upper", {
     upper <- get_upper(str)
     expect_equal(lower, 1)
     expect_true(is.na(upper))
+
+    str <- "5 <= log(ernestina_pico * ernestina_volume) <= 15"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_equal(lower, 5)
+    expect_equal(upper, 15)
+
+    str <- "0.1 <= sqrt(ernestina_pico^2 + ernestina_volume^2)"
+    lower <- get_lower(str)
+    upper <- get_upper(str)
+    expect_equal(lower, 0.1)
+    expect_true(is.na(upper))
 })
 
-test_that("validate_vars", {
-    modelo <- fit_modelo_cheia(minicheias)
-
-    expect_no_error(validate_vars("barra_grande_pico", modelo))
-    expect_no_error(validate_vars("barra_grande_volume", modelo))
-
-    expect_error(validate_vars("barra_grande_erro", modelo))
+test_that("clean_expression_string", {
+    expect_equal(clean_expression_string("ernestina_pico <= 1"), "ernestina_pico")
+    expect_equal(clean_expression_string("0 <= ernestina_pico"), "ernestina_pico")
+    expect_equal(clean_expression_string("0 <= ernestina_pico <= 1"), "ernestina_pico")
+    expect_equal(clean_expression_string("  ernestina_pico + ernestina_volume  "),
+        "ernestina_pico+ernestina_volume")
+    expect_equal(clean_expression_string("(ernestina_pico + ernestina_volume)"),
+        "ernestina_pico+ernestina_volume")
+    expect_equal(clean_expression_string("1.5 <= log(ernestina_pico * ernestina_volume) <= 5.0"),
+        "log(ernestina_pico*ernestina_volume)")
+    expect_equal(clean_expression_string("sqrt(ernestina_pico^2 + ernestina_volume^2) >= 100"),
+        "sqrt(ernestina_pico^2+ernestina_volume^2)")
 })
 
-test_that("parse_unitary_event", {
+test_that("extract_variables_from_expr", {
     modelo <- fit_modelo_cheia(minicheias)
+
+    expr <- str2lang("ernestina_pico")
+    vars <- extract_variables_from_expr(expr)
+    expect_equal(vars, "ernestina_pico")
+
+    expr <- str2lang("ernestina_pico + ernestina_volume")
+    vars <- extract_variables_from_expr(expr)
+    expect_equal(vars, c("ernestina_pico", "ernestina_volume"))
+
+    expr <- str2lang("log(ernestina_pico * barra_grande_pico)")
+    vars <- extract_variables_from_expr(expr)
+    expect_equal(vars, c("ernestina_pico", "barra_grande_pico"))
+
+    expr <- str2lang("sqrt(ernestina_pico^2 + ernestina_volume^2)")
+    vars <- extract_variables_from_expr(expr)
+    expect_equal(vars, c("ernestina_pico", "ernestina_volume"))
+
+    expr <- str2lang("(ernestina_pico + ernestina_volume) / barra_grande_volume")
+    vars <- extract_variables_from_expr(expr)
+    expect_equal(vars, c("ernestina_pico", "ernestina_volume", "barra_grande_volume"))
+})
+
+test_that("parse_unitary_event univariate events", {
+    modelo <- fit_modelo_cheia(minicheias)
+
     evt <- parse_unitary_event("barra_grande_duracao <= 10", modelo)
-
     expect_true(inherits(evt, "unitary_event_u"))
-    raw_bounds <- attr(evt, "bounds_x")
-    expect_true(is.na(raw_bounds[1]) || raw_bounds[1] == 0)
-    expect_equal(raw_bounds[2], 10)
+    bounds_x <- attr(evt, "bounds_x")
+    expect_equal(bounds_x, c(NA, 10))
 
-    bounds_u <- sapply(attr(evt, "bounds_x"),
-        function(x) if (is.na(x)) NA else attr(modelo, "ecdfs")[["barra_grande_duracao"]](x))
-    expect_equal(attr(evt, "bounds_u"), bounds_u)
+    evt <- parse_unitary_event("ernestina_pico >= 500", modelo)
+    expect_true(inherits(evt, "unitary_event_u"))
+    bounds_x <- attr(evt, "bounds_x")
+    expect_equal(bounds_x, c(500, NA))
+
+    evt <- parse_unitary_event("100 <= barra_grande_volume <= 800", modelo)
+    expect_true(inherits(evt, "unitary_event_u"))
+    bounds_x <- attr(evt, "bounds_x")
+    expect_equal(bounds_x, c(100, 800))
+})
+
+test_that("parse_unitary_event multivariate events", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    expect_error(parse_unitary_event("ernestina_pico + ernestina_volume >= 1000", modelo),
+        "Eventos unitarios multivariados ainda nao sao suportados")
+
+    expect_error(parse_unitary_event("log(ernestina_pico * ernestina_volume) <= 5", modelo),
+        "Eventos unitarios multivariados ainda nao sao suportados")
+
+    expect_error(parse_unitary_event("ernestina_pico / barra_grande_pico >= 2", modelo),
+        "Eventos unitarios multivariados ainda nao sao suportados")
+})
+
+test_that("parse_unitary_event error handling", {
+    modelo <- fit_modelo_cheia(minicheias)
+
+    expect_error(parse_unitary_event("nonexistent_var <= 100", modelo))
+    expect_error(parse_unitary_event("invalid + + syntax", modelo))
+    expect_error(parse_unitary_event("ernestina_pico + nonexistent_var >= 100", modelo))
 })
 
 test_that("event2bounds", {
