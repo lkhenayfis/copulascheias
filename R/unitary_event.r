@@ -135,5 +135,40 @@ event2bounds.unitary_event_u <- function(x, mode = c("x", "u"), ...) {
 #' @rdname event2bounds
 
 event2bounds.unitary_event_m <- function(x) {
-    stop("Eventos unitarios multivariados ainda nao sao suportados")
+    msg <- paste0("Eventos unitarios multivariados nao possuem bounds proprios --",
+        "Veja ?inference2bounds.complex_inference")
+    stop(msg)
+}
+
+#' Extrai Funcao De Evento Unitario
+#' 
+#' Para eventos unitaros univariados, retorna erro. Para multivariados, retorna lista com funcoes
+#' que representam a avaliacao no formato `f(x) <= 0` do evento descrito. Por exemplo, para o evento
+#' "var1 + var2^2 >= 100", a funcao retornada sera `function(var1, var2) 100 - (var1 + var2^2)`. Se
+#' haviam bounds inferiores e superiores, duas funcoes serao retornadas, uma para cada bound.
+#' 
+#' @param x evento unitario
+#' 
+#' @return lista com funcoes geradas
+
+event2function <- function(x, ...) UseMethod("event2function")
+
+#' @rdname event2function
+
+event2function.unitary_event_u <- function(x, ...) {
+    stop("Transformacao em funcao nao implementada para eventos unitarios univariados")
+}
+
+#' @rdname event2function
+
+event2function.unitary_event_m <- function(x, ...) {
+    f_low <- with(attributes(x), {
+        str2function(expr, modelo$vines$names, bound = bounds_x[1], kind = "lower")
+    })
+    f_upp <- with(attributes(x), {
+        str2function(expr, modelo$vines$names, bound = bounds_x[2], kind = "upper")
+    })
+    out <- list(f_low, f_upp)
+    out <- Filter(function(x) !is.null(x), out)
+    return(out)
 }
