@@ -13,7 +13,8 @@ Depends:
 Imports: 
     stats (>= 4.0.0),
     VineCopula (>= 2.6.1),
-    data.table (>= 1.17.8)
+    data.table (>= 1.17.8),
+    nloptr (>= 2.2.1)
 LazyData: true
 Suggests: 
     lhs (>= 1.2.0),
