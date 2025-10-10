@@ -110,9 +110,9 @@ split_separadores <- function(expr) {
 #' 
 #' @return lista de dois vetores: lower e upper bounds de integracao
 
-inference2bounds <- function(inference, modelo, mode) UseMethod("inference2bounds", inference)
+inference2bounds <- function(inference, modelo, ...) UseMethod("inference2bounds", inference)
 
-inference2bounds.simple_inference <- function(inference, modelo, mode) {
+inference2bounds.simple_inference <- function(inference, modelo, mode = "u", ...) {
     bounds <- lapply(inference, function(i) event2bounds(i, mode = mode))
     lower <- sapply(bounds, function(b) b[1])
     upper <- sapply(bounds, function(b) b[2])
@@ -129,7 +129,7 @@ inference2bounds.simple_inference <- function(inference, modelo, mode) {
     return(bounds)
 }
 
-inference2bounds.complex_inference <- function(inference, modelo) {
+inference2bounds.complex_inference <- function(inference, modelo, ...) {
     box_only <- simplify_complex_inference(inference)
     box_bounds <- inference2bounds(box_only, modelo, mode = "x")
 
