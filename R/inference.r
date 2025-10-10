@@ -129,6 +129,22 @@ inference2bounds.simple_inference <- function(inference, modelo, mode) {
     return(bounds)
 }
 
+inference2bounds.complex_inference <- function(inference, modelo) {
+    box_only <- simplify_complex_inference(inference)
+    box_bounds <- inference2bounds(box_only, modelo, mode = "x")
+
+    inference <- Filter(function(e) inherits(e, "unitary_event_m"), inference)
+    list_g <- lapply(inference, function(i) event2function(i))
+    list_g <- unlist(list_g)
+
+    vars <- modelo$vines$names
+    bounding_box <- lapply(vars, min_max_single_var, ineqs = list_g, bounds = box_bounds, allvars = vars)
+    names(bounding_box) <- vars
+
+    bounding_box <- lapply(seq_len(2), function(i) sapply(bounding_box, function(x) x[i]))
+    return(bounding_box)
+}
+
 #' Preenche Vetor Com Valores Padrao
 #' 
 #' Preenche `vec` com valores `fill` para todas as posicoes em `names` que nao existam em `vec`
@@ -140,7 +156,49 @@ inference2bounds.simple_inference <- function(inference, modelo, mode) {
 #' @return vetor `vec` preenchido com `fill` para todas as posicoes em `names` faltantes em `vec`
 
 fillvec <- function(vec, names, fill = 1) {
-    full <- structure(rep(fill, length(names)), names = names)
+    full <- structure(rep(fill, length.out = length(names)), names = names)
     full[match(names(vec), names(full))] <- vec
     return(full)
+}
+
+min_max_single_var <- function(var, ineqs, bounds, allvars) {
+    start <- structure((bounds[[1]] + bounds[[2]]) / 2, names = allvars)
+    eval_g <- function(x) run_ineqs(x, allvars, ineqs)
+
+    ind <- which(allvars == var)
+
+    obj <- function(x) x[ind]
+    min <- nloptr::nloptr(start, obj,
+        lb = bounds[[1]], ub = bounds[[2]], eval_g_ineq = eval_g,
+        opts = list(algorithm = "NLOPT_LN_COBYLA", maxeval = 5e3))
+    min <- min$solution[ind]
+
+    obj <- function(x) -x[ind]
+    max <- nloptr::nloptr(start, obj,
+        lb = bounds[[1]], ub = bounds[[2]], eval_g_ineq = eval_g,
+        opts = list(algorithm = "NLOPT_LN_COBYLA", maxeval = 5e3))
+    max <- max$solution[ind]
+
+    out <- c(min, max)
+    return(out)
+}
+
+run_ineqs <- function(x, x_names, ineqs) {
+    names(x) <- x_names
+    sapply(ineqs, function(f) {
+        cc <- c(list(f), as.list(x))
+        eval(as.call(cc), parent.frame())
+    })
+}
+
+run_deriv_ineqs <- function(x, ineqs) {
+    sapply(ineqs, function(f) {
+        cc <- c(list(f), as.list(x))
+        eval(as.call(cc), parent.frame())
+    })
+}
+
+remove_dots <- function(fun) {
+    formals(fun) <- formals(fun)[-length(formals(fun))]
+    fun
 }
