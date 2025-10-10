@@ -32,6 +32,8 @@ parse_inference <- function(expr, modelo) {
         new_simple_inference(units)
     } else if (only_intersect) {
         new_complex_inference(units)
+    } else {
+        stop("Operadores OR ('|') ainda nao sao suportados")
     }
 }
 
@@ -116,10 +118,14 @@ split_separadores <- function(expr) {
 #' @param inference um objeto do tipo `simple_inference`
 #' @param modelo modelo ajustado por [fit_modelo_cheia()] para identificacao das variaveis que nao
 #'     aparecem em `inference`
+#' @param ... demais parametros de cada metodo
+#' @param mode um de `c("x", "u")`, indicando a escala em que bounds serao retornados
 #' 
 #' @return lista de dois vetores: lower e upper bounds de integracao
 
 inference2bounds <- function(inference, modelo, ...) UseMethod("inference2bounds", inference)
+
+#' @rdname inference2bounds
 
 inference2bounds.simple_inference <- function(inference, modelo, mode = "u", ...) {
     bounds <- lapply(inference, function(i) event2bounds(i, mode = mode))
@@ -138,6 +144,8 @@ inference2bounds.simple_inference <- function(inference, modelo, mode = "u", ...
     return(bounds)
 }
 
+#' @rdname inference2bounds
+
 inference2bounds.complex_inference <- function(inference, modelo, ...) {
     box_only <- simplify_complex_inference(inference)
     box_bounds <- inference2bounds(box_only, modelo, mode = "x")
@@ -153,6 +161,8 @@ inference2bounds.complex_inference <- function(inference, modelo, ...) {
     bounding_box <- lapply(seq_len(2), function(i) sapply(bounding_box, function(x) x[i]))
     return(bounding_box)
 }
+
+#' @rdname inference2bounds
 
 inference2bounds.void_inference <- function(inference, modelo, mode = "u", ...) {
     model_vars <- modelo$vines$names
