@@ -36,11 +36,19 @@ default_vine_params <- function() {
     list(familyset = c(1, 2, 3), rotations = TRUE, selectioncrit = "logLik")
 }
 
-new_modelo_cheia <- function(vines, ecdfs, postos, anos) {
+new_modelo_cheia <- function(vines, ecdfs) {
     new <- structure(list(vines = vines), class = c("modelo_cheia", "list"))
-    attr(new, "ecdfs")  <- ecdfs
+    attr(new, "ecdfs") <- ecdfs
+    attr(new, "inv_ecdfs") <- lapply(ecdfs, inverte_ecdf)
 
     return(new)
+}
+
+inverte_ecdf <- function(ecdf) {
+    inv <- ecdf
+    body(inv)[2:3]   <- body(inv)[3:2]
+    environment(inv) <- environment(ecdf)
+    return(inv)
 }
 
 # METODOS ------------------------------------------------------------------------------------------
