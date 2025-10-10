@@ -1,6 +1,6 @@
 Package: copulascheias
 Title: Ferramental Para Analise De Parametros De Cheias Atraves De Vine-Copulas
-Version: 0.0.0.9000
+Version: 0.1
 Authors@R: 
     person("Lucas", "Khenayfis", , "lucaskhenayfis@gmail.com", role = c("aut", "cre"))
 Description: Ferramental Para Analise De Parametros De Cheias Atraves De Vine-Copulas.
