@@ -15,21 +15,11 @@ test_that("parse_inference", {
     expect_error(parse_inference(expr, modelo))
 })
 
-test_that("simple_inference2bounds", {
+test_that("inference2bounds", {
     modelo <- fit_modelo_cheia(minicheias)
     inference <- parse_inference("(ernestina_volume >= 200) & (ernestina_pico >= 100)", modelo)
 
-    bounds <- simple_inference2bounds(inference)
-    expect_equal(
-        round(bounds[[1]], 7),
-        structure(c(0.9397590, 0.1204819), names = c("ernestina_volume", "ernestina_pico"))
-    )
-    expect_equal(
-        round(bounds[[2]], 7),
-        structure(c(1, 1), names = c("ernestina_volume", "ernestina_pico"))
-    )
-
-    bounds <- simple_inference2bounds(inference, modelo)
+    bounds <- inference2bounds(inference, modelo)
     expect_equal(
         round(bounds[[1]], 7),
         structure(c(0, 0, 0, 0.1204819, 0, 0.9397590), names = modelo$vines$names)
