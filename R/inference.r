@@ -60,9 +60,18 @@ new_complex_inference <- function(unitary_events) {
     return(new)
 }
 
+new_void_inference <- function(unitary_events) {
+    new <- structure(unitary_events, class = c("void_inference", "list"))
+    return(new)
+}
+
 simplify_complex_inference <- function(inference) {
     univars <- Filter(function(e) inherits(e, "unitary_event_u"), inference)
-    new_simple_inference(univars)
+    if (length(univars) == 0) {
+        new_void_inference(univars)
+    } else {
+        new_simple_inference(univars)
+    }
 }
 
 # HELPERS ------------------------------------------------------------------------------------------
@@ -143,6 +152,19 @@ inference2bounds.complex_inference <- function(inference, modelo, ...) {
 
     bounding_box <- lapply(seq_len(2), function(i) sapply(bounding_box, function(x) x[i]))
     return(bounding_box)
+}
+
+inference2bounds.void_inference <- function(inference, modelo, mode = "u", ...) {
+    model_vars <- modelo$vines$names
+    lower <- structure(rep(0, length(model_vars)), names = model_vars)
+    if (mode == "u") {
+        upper <- structure(rep(1, length(model_vars)), names = model_vars)
+    } else {
+        upper <- structure(sapply(attr(modelo, "inv_ecdf"), function(f) f(1)), names = model_vars)
+    }
+
+    bounds <- list(lower, upper)
+    return(bounds)
 }
 
 #' Preenche Vetor Com Valores Padrao
