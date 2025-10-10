@@ -3,11 +3,14 @@
 \name{run_inference}
 \alias{run_inference}
 \alias{run_inference.simple_inference}
+\alias{run_inference.complex_inference}
 \title{Executa Inferencia}
 \usage{
 run_inference(inference, modelo, nsims, modo)
 
 \method{run_inference}{simple_inference}(inference, modelo, nsims, modo)
+
+\method{run_inference}{complex_inference}(inference, modelo, nsims, modo)
 }
 \arguments{
 \item{inference}{objeto inferenca}

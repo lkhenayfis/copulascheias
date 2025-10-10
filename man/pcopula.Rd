@@ -4,7 +4,7 @@
 \alias{pcopula}
 \title{Inferencia Em Modelos De Copula}
 \usage{
-pcopula(expr, modelo, nsims = 2e+06, modo = c("defult", "lhs"))
+pcopula(expr, modelo, nsims = 2e+06, modo = c("default", "lhs"))
 }
 \arguments{
 \item{expr}{string descrevendo o evento cuja probabilidade deve ser calculada. Veja Detalhes}
