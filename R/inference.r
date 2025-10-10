@@ -25,36 +25,44 @@ parse_inference <- function(expr, modelo) {
     units <- split_eventos_unitarios(expr)
     units <- lapply(units, parse_unitary_event, modelo)
 
-    is_square <- all(seps == "&") && all(sapply(units, inherits, "unitary_event_u"))
-    if (is_square) {
+    only_intersect <- all(seps == "&")
+    all_univariate <- all(sapply(units, inherits, "unitary_event_u"))
+
+    if (only_intersect && all_univariate) {
         new_simple_inference(units)
-    } else {
-        new_complex_inference()
+    } else if (only_intersect) {
+        new_complex_inference(units)
     }
 }
 
-#' Construtor Interno De `simple_inference`
+#' Construtor Interno De Objetos De Inferencia
 #' 
-#' Gera um objeto da classe `simple_inference`, uma lista de eventos unitarios interpretados
+#' Gera um objeto para inferencia, uma lista de eventos unitarios interpretados
 #' 
 #' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_event()]
 #' 
 #' @return argumento `unitary_events` com classe adicionada `simple_inference`
+#' 
+#' @name inference_constructors
+NULL
+
+#' @rdname inference_constructors
 
 new_simple_inference <- function(unitary_events) {
     new <- structure(unitary_events, class = c("simple_inference", "list"))
     return(new)
 }
 
-#' Construtor Interno De `complex_inference`
-#' 
-#' Ainda nao implementado
-#' 
-#' @param unitary_events lista de eventos unitarios ja interpretados por [parse_unitary_event()]
-#' @param separators vetor de separadores de eventos
+#' @rdname inference_constructors
 
-new_complex_inference <- function(unitary_events, separators) {
-    stop("Inferencias complexas (conjuntos nao quadrados) ainda nao suportadas")
+new_complex_inference <- function(unitary_events) {
+    new <- structure(unitary_events, class = c("complex_inference", "list"))
+    return(new)
+}
+
+simplify_complex_inference <- function(inference) {
+    univars <- Filter(function(e) inherits(e, "unitary_event_u"), inference)
+    new_simple_inference(univars)
 }
 
 # HELPERS ------------------------------------------------------------------------------------------
