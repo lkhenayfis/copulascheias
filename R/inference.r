@@ -91,31 +91,39 @@ split_separadores <- function(expr) {
 
 # METODOS ------------------------------------------------------------------------------------------
 
-#' Extrai Limites De Integracao De `simple_inference`
+#' Extrai Limites De Integracao Retangulares
 #' 
 #' Gera lista de dois vetores: lower e upper bounds de integracao
 #' 
-#' Se `modelo` for passado, a funcao busca as variaveis contidas nele que nao constam em `inference`
-#' para completar os vetores de bounds. Nestas posicoes o lower bound e sempre 0 e o upper, 1.
+#' O comportamento desta funcao depende do tipo de `inference`. No caso de `simple_inference`, a
+#' funcao simplesmente retorna os bounds de cada evento unitario, preenchendo com 0 e 1 para
+#' as variaveis que nao aparecem em `inference`.
+#' 
+#' No caso de `complex_inference`, a funcao identifica a bounding box que contem o evento complexo e
+#' retorna os limites desta caixa.
 #' 
 #' E recomendado sempre passar este argumento, do contrario erros podem decorrer.
 #' 
 #' @param inference um objeto do tipo `simple_inference`
-#' @param modelo opcionalmente um modelo ajustado por [fit_modelo_cheia()]. Veja Detalhes
+#' @param modelo modelo ajustado por [fit_modelo_cheia()] para identificacao das variaveis que nao
+#'     aparecem em `inference`
 #' 
 #' @return lista de dois vetores: lower e upper bounds de integracao
 
-simple_inference2bounds <- function(inference, modelo = NULL) {
-    bounds <- lapply(inference, function(i) event2bounds(i, mode = "u"))
+inference2bounds <- function(inference, modelo, mode) UseMethod("inference2bounds", inference)
+
+inference2bounds.simple_inference <- function(inference, modelo, mode) {
+    bounds <- lapply(inference, function(i) event2bounds(i, mode = mode))
     lower <- sapply(bounds, function(b) b[1])
     upper <- sapply(bounds, function(b) b[2])
     names(lower) <- names(upper) <- unclass(inference)
 
-    if (!is.null(modelo)) {
-        model_vars <- modelo$vines$names
-        lower <- fillvec(lower, model_vars, 0)
-        upper <- fillvec(upper, model_vars, 1)
-    }
+    upper <- upper[!is.infinite(upper)]
+    model_vars <- modelo$vines$names
+
+    lower <- fillvec(lower, model_vars, 0)
+    upper <- fillvec(upper, model_vars,
+        if (mode == "u") 1 else sapply(attr(modelo, "inv_ecdf"), function(f) f(1)))
 
     bounds <- list(lower, upper)
     return(bounds)
