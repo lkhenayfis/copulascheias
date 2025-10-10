@@ -35,7 +35,7 @@
 #' 
 #' @export
 
-pcopula <- function(expr, modelo, nsims = 2e6, modo = c("defult", "lhs")) {
+pcopula <- function(expr, modelo, nsims = 2e6, modo = c("default", "lhs")) {
     modo <- match.arg(modo)
     if ((modo == "lhs") && !requireNamespace("lhs", quietly = TRUE)) {
         stop("Simulacao por hipercubo latino precisa do pacote 'lhs'")
@@ -61,7 +61,7 @@ run_inference <- function(inference, modelo, nsims, modo) UseMethod("run_inferen
 #' @rdname run_inference
 
 run_inference.simple_inference <- function(inference, modelo, nsims, modo) {
-    bounds <- simple_inference2bounds(inference, modelo)
+    bounds <- inference2bounds(inference, modelo)
 
     vars <- modelo$vines$names
     norm <- prod(sapply(vars, function(var) bounds[[2]][var] - bounds[[1]][var]))
@@ -71,6 +71,38 @@ run_inference.simple_inference <- function(inference, modelo, nsims, modo) {
 
     prob <- norm * mean(RVinePDF(sim, modelo$vines))
     return(prob)
+}
+
+#' @rdname run_inference
+
+run_inference.complex_inference <- function(inference, modelo, nsims, modo) {
+    ecdfs <- attr(modelo, "ecdfs")
+    inv_ecdfs <- attr(modelo, "inv_ecdfs")
+
+    bounds_x <- inference2bounds(inference, modelo)
+    bounds_u <- lapply(bounds_x, function(v) mapply(FUN = function(f, x) f(x), ecdfs, v))
+
+    vars <- modelo$vines$names
+    norm <- prod(sapply(vars, function(var) bounds_u[[2]][var] - bounds_u[[1]][var]))
+
+    sim_fun <- ifelse(modo == "default", rmunif, rmunifLHS)
+    h <- build_h_function(inference, modelo)
+
+    sim_u <- sim_fun(nsims, length(vars), bounds_u[[1]], bounds_u[[2]])
+    sim_x <- mapply(inv_ecdfs, seq_len(ncol(sim_u)), FUN = function(f, i) f(sim_u[, i]), SIMPLIFY = FALSE)
+    belong <- c(h(sim_x))
+
+    prob <- norm * mean(belong * RVinePDF(sim_u, modelo$vines))
+
+    return(prob)
+}
+
+build_h_function <- function(inference, modelo) {
+    inference <- Filter(function(e) inherits(e, "unitary_event_m"), inference)
+    list_g <- lapply(inference, function(i) event2function(i))
+    list_g <- unlist(list_g)
+    h <- function(x) run_ineqs(x, modelo$vines$names, list_g) <= 0
+    return(h)
 }
 
 rmunif <- function(n, d, min, max) {
